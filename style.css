@@ -641,6 +641,41 @@ body.sidebar-open #cafecito-btn {
   height: 24px !important;
 }
 
+/* Botón de GitHub */
+#github-btn {
+  position: fixed !important;
+  top: 204px !important;
+  /* 144px + 50px (btn height) + 10px margin */
+  left: 24px !important;
+  width: 50px !important;
+  height: 50px !important;
+  background-color: var(--card-bg) !important;
+  color: var(--primary-color) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+body.sidebar-open #github-btn {
+  left: 344px !important;
+}
+
+#github-btn:hover {
+  transform: scale(1.05) !important;
+  background-color: var(--border-color) !important;
+}
+
+#github-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
 /* =========================================================
    BOTONES MODERNOS GENÉRICOS
    ========================================================= */
