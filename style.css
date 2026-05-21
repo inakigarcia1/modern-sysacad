@@ -170,6 +170,38 @@ form[name="login"] td[align="right"] {
   text-align: left !important;
 }
 
+/* =========================================================
+   FORMULARIO DE CAMBIO DE CONTRASEÑA
+   ========================================================= */
+form[name="cambioPassword"] table table table tbody,
+form[name="cambioPassword"] table table table tr,
+form[name="cambioPassword"] table table table td {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+form[name="cambioPassword"] table table table td {
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+form[name="cambioPassword"] table table table td.textoTabla:not([colspan="2"]) {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 8px !important;
+  margin-top: 24px !important;
+}
+
+form[name="cambioPassword"] table table table td[colspan="2"] b i {
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+  color: var(--text-secondary) !important;
+}
+
+
 input[type="text"],
 input[type="password"] {
   width: 100% !important;

@@ -10,7 +10,7 @@ if (isMenuAlumno && !isErrorPage) {
 
     let logoUrl = chrome.runtime.getURL('icons/UTN_logo.png');
     if (!logoUrl || logoUrl.startsWith('undefined')) {
-        logoUrl = chrome.runtime.getURL('ModernSysacad/icons/UTN_logo.jpg');
+        logoUrl = chrome.runtime.getURL('ModernSysacad/icons/UTN_logo.png');
     }
 
     const heroContainer = document.createElement('div');
@@ -73,9 +73,9 @@ if (isMenuAlumno && !isErrorPage) {
 
     for (const h2 of tituloElements) {
         if (h2.textContent.includes('Universidad Tecn') || h2.textContent.includes('Facultad Regional')) {
-            let logoUrl = chrome.runtime.getURL('icons/UTN_logo.jpg');
+            let logoUrl = chrome.runtime.getURL('icons/UTN_logo.png');
             if (!logoUrl || logoUrl.startsWith('undefined')) {
-                logoUrl = chrome.runtime.getURL('ModernSysacad/icons/UTN_logo.jpg');
+                logoUrl = chrome.runtime.getURL('ModernSysacad/icons/UTN_logo.png');
             }
 
             h2.innerHTML = `
