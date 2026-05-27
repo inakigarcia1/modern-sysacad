@@ -2041,6 +2041,29 @@ body.ms-page-encuesta .ms-select-option.is-selected {
     font-weight: 600;
 }
 
+/* Highlight de keyboard navigation (ArrowUp/Down).
+   Más fuerte que :hover para que el focus sea evidente al navegar con teclado. */
+body.ms-page-encuesta .ms-select-option.is-highlighted {
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent);
+    box-shadow: inset 2px 0 0 var(--ms-accent);
+}
+
+/* Visually-hidden técnico: el <select> nativo queda fuera del flow visual
+   pero accesible para screen readers (a diferencia de display:none).
+   Form submission sigue funcionando porque se sincroniza con la UI custom. */
+.ms-select-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
 body.ms-page-encuesta .ms-select-option.is-placeholder {
     color: var(--ms-text-muted);
     font-style: italic;

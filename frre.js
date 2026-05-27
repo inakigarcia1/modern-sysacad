@@ -1208,15 +1208,49 @@
      *     select.value y disparamos un event 'change' nativo bubbleante,
      *     que jQuery 1.11 captura igual que un cambio real del usuario.
      */
+    // ----- Listeners globales compartidos para todos los custom selects -----
+    // En vez de registrar un (click + keydown) por cada select decorado
+    // (multiplicaba handlers en páginas con muchos selects, ej. encuestas),
+    // los listeners viven una sola vez a nivel document y consultan el Set
+    // de selects actualmente abiertos.
+    const _msOpenSelects = new Set();
+    let _msSelectGlobalsInited = false;
+    function _initSelectGlobals() {
+        if (_msSelectGlobalsInited) return;
+        _msSelectGlobalsInited = true;
+        document.addEventListener('click', (e) => {
+            _msOpenSelects.forEach(api => {
+                if (!api.wrapper.contains(e.target)) api.close();
+            });
+        });
+    }
+
+    let _msSelectCounter = 0;
+
     function enhanceSelect(select) {
         if (select.dataset.msEnhanced) return;
         select.dataset.msEnhanced = '1';
+        _initSelectGlobals();
+
+        const uid = ++_msSelectCounter;
+        const panelId = `ms-select-panel-${uid}`;
+        const optionIdPrefix = `ms-select-opt-${uid}-`;
 
         const wrapper = el('div', { className: 'ms-select' });
         const trigger = el('button', {
             className: 'ms-select-trigger',
-            attrs: { type: 'button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false' }
+            attrs: {
+                type: 'button',
+                'aria-haspopup': 'listbox',
+                'aria-expanded': 'false',
+                'aria-controls': panelId
+            }
         });
+        if (select.id) {
+            // Si el select original tiene un <label for=...>, lo conectamos al trigger
+            const lbl = document.querySelector(`label[for="${select.id}"]`);
+            if (lbl) trigger.setAttribute('aria-labelledby', lbl.id || (lbl.id = `ms-select-lbl-${uid}`));
+        }
         const valueLabel = el('span', { className: 'ms-select-value' });
         const chevron = el('span', {
             className: 'ms-select-chevron',
@@ -1225,28 +1259,78 @@
         trigger.appendChild(valueLabel);
         trigger.appendChild(chevron);
 
-        const panel = el('div', { className: 'ms-select-panel', attrs: { role: 'listbox' } });
+        const panel = el('div', {
+            className: 'ms-select-panel',
+            attrs: { id: panelId, role: 'listbox', tabindex: '-1' }
+        });
+
+        let highlightedIndex = -1;
 
         const optionEls = [];
         [...select.options].forEach((opt, i) => {
             const optionEl = el('div', {
                 className: 'ms-select-option',
-                attrs: { role: 'option', 'data-value': opt.value, 'data-index': String(i) },
+                attrs: {
+                    id: optionIdPrefix + i,
+                    role: 'option',
+                    'aria-selected': 'false',
+                    'data-value': opt.value,
+                    'data-index': String(i)
+                },
                 text: opt.text || ''
             });
-            if (opt.disabled) optionEl.classList.add('is-disabled');
+            if (opt.disabled) {
+                optionEl.classList.add('is-disabled');
+                optionEl.setAttribute('aria-disabled', 'true');
+            }
             if (!opt.value) optionEl.classList.add('is-placeholder');
-            optionEl.addEventListener('click', () => {
-                if (opt.disabled) return;
-                select.selectedIndex = i;
-                select.dispatchEvent(new Event('input', { bubbles: true }));
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-                updateDisplay();
-                close();
+            optionEl.addEventListener('click', () => selectOption(i));
+            optionEl.addEventListener('mouseenter', () => {
+                if (!opt.disabled) setHighlight(i);
             });
             panel.appendChild(optionEl);
             optionEls.push(optionEl);
         });
+
+        function setHighlight(idx) {
+            if (idx < 0 || idx >= optionEls.length) return;
+            optionEls.forEach((o, i) => o.classList.toggle('is-highlighted', i === idx));
+            trigger.setAttribute('aria-activedescendant', optionIdPrefix + idx);
+            highlightedIndex = idx;
+            // Scroll into view dentro del panel si hace falta
+            const optEl = optionEls[idx];
+            if (optEl && optEl.scrollIntoView) {
+                optEl.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function clearHighlight() {
+            optionEls.forEach(o => o.classList.remove('is-highlighted'));
+            trigger.removeAttribute('aria-activedescendant');
+            highlightedIndex = -1;
+        }
+
+        function nextEnabledIndex(from, dir) {
+            let i = from;
+            for (let step = 0; step < optionEls.length; step++) {
+                i += dir;
+                if (i < 0) i = optionEls.length - 1;
+                if (i >= optionEls.length) i = 0;
+                if (!select.options[i].disabled) return i;
+            }
+            return from;
+        }
+
+        function selectOption(idx) {
+            if (idx < 0 || idx >= optionEls.length) return;
+            if (select.options[idx].disabled) return;
+            select.selectedIndex = idx;
+            select.dispatchEvent(new Event('input', { bubbles: true }));
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            updateDisplay();
+            close();
+            trigger.focus();
+        }
 
         function updateDisplay() {
             const sel = select.options[select.selectedIndex];
@@ -1254,17 +1338,31 @@
             valueLabel.textContent = sel ? sel.text : '';
             valueLabel.classList.toggle('is-placeholder', isPlaceholder);
             optionEls.forEach((o, i) => {
-                o.classList.toggle('is-selected', i === select.selectedIndex && !isPlaceholder);
+                const isSelected = i === select.selectedIndex && !isPlaceholder;
+                o.classList.toggle('is-selected', isSelected);
+                o.setAttribute('aria-selected', isSelected ? 'true' : 'false');
             });
         }
 
+        const api = { wrapper, close };
+
         function open() {
+            if (wrapper.classList.contains('is-open')) return;
             wrapper.classList.add('is-open');
             trigger.setAttribute('aria-expanded', 'true');
+            _msOpenSelects.add(api);
+            // Pre-highlight: la opción seleccionada o la primera no-disabled
+            const initial = select.selectedIndex >= 0 && select.options[select.selectedIndex] && !select.options[select.selectedIndex].disabled
+                ? select.selectedIndex
+                : nextEnabledIndex(-1, 1);
+            setHighlight(initial);
         }
         function close() {
+            if (!wrapper.classList.contains('is-open')) return;
             wrapper.classList.remove('is-open');
             trigger.setAttribute('aria-expanded', 'false');
+            _msOpenSelects.delete(api);
+            clearHighlight();
         }
         function toggle() {
             wrapper.classList.contains('is-open') ? close() : open();
@@ -1275,14 +1373,52 @@
             toggle();
         });
 
-        // Outside click cierra el panel
-        document.addEventListener('click', (e) => {
-            if (!wrapper.contains(e.target)) close();
-        });
-
-        // Escape cierra el panel
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && wrapper.classList.contains('is-open')) close();
+        // Keyboard nav (scope: trigger button). Maneja toda la interacción
+        // ARIA listbox sin necesidad de listeners document-level.
+        trigger.addEventListener('keydown', (e) => {
+            const isOpen = wrapper.classList.contains('is-open');
+            if (!isOpen) {
+                // Acciones cuando el panel está cerrado
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp' ||
+                    e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    open();
+                }
+                return;
+            }
+            // Panel abierto: ARIA listbox keyboard
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    setHighlight(nextEnabledIndex(highlightedIndex, 1));
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    setHighlight(nextEnabledIndex(highlightedIndex, -1));
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    setHighlight(nextEnabledIndex(-1, 1));
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    setHighlight(nextEnabledIndex(optionEls.length, -1));
+                    break;
+                case 'Enter':
+                case ' ':
+                    e.preventDefault();
+                    if (highlightedIndex >= 0) selectOption(highlightedIndex);
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    close();
+                    trigger.focus();
+                    break;
+                case 'Tab':
+                    // Tab cierra sin seleccionar y deja que el browser haga el focus next
+                    close();
+                    break;
+            }
         });
 
         // Si algo externo cambia el select (raro, pero por las dudas), reflejarlo
@@ -1291,8 +1427,10 @@
         wrapper.appendChild(trigger);
         wrapper.appendChild(panel);
 
-        // Insertar el wrapper inmediatamente después del select y ocultar el original
-        select.style.display = 'none';
+        // El <select> nativo queda accesible para screen readers vía
+        // visually-hidden (NO display:none). El form submission sigue funcionando
+        // porque la value se sincroniza al cambiar la UI custom.
+        select.classList.add('ms-select-sr-only');
         select.parentNode.insertBefore(wrapper, select.nextSibling);
 
         updateDisplay();
