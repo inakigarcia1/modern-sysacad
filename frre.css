@@ -1522,3 +1522,188 @@ html.ms-switching *::after {
         animation: none !important;
     }
 }
+
+/* ---------- Encuesta ---------- */
+
+/* Header del título: simple, sin gradiente ni sombra.
+   El JS detecta el elemento con bg computado oscuro y le pone esta clase
+   para anular el azul-marino original. */
+body.ms-page-encuesta .ms-encuesta-header {
+    background: transparent !important;
+    color: var(--ms-text) !important;
+    padding: 8px 0 16px !important;
+    margin: 0 0 16px !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    box-shadow: none !important;
+}
+
+/* Descendientes: bg transparente y heredan el color base */
+body.ms-page-encuesta .ms-encuesta-header *,
+body.ms-page-encuesta .ms-encuesta-header *::before,
+body.ms-page-encuesta .ms-encuesta-header *::after {
+    background: transparent !important;
+    color: var(--ms-text) !important;
+}
+
+/* Tipografía: títulos en accent (lo único con color, para que destaque) */
+body.ms-page-encuesta .ms-encuesta-header h1,
+body.ms-page-encuesta .ms-encuesta-header h2,
+body.ms-page-encuesta .ms-encuesta-header h3 {
+    color: var(--ms-accent) !important;
+    margin: 0 0 8px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+}
+
+body.ms-page-encuesta .ms-encuesta-header h1 { font-size: 24px; }
+body.ms-page-encuesta .ms-encuesta-header h2 { font-size: 20px; }
+body.ms-page-encuesta .ms-encuesta-header h3 { font-size: 17px; }
+
+body.ms-page-encuesta .ms-encuesta-header p,
+body.ms-page-encuesta .ms-encuesta-header span,
+body.ms-page-encuesta .ms-encuesta-header div {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ms-text-secondary) !important;
+}
+
+/* Inputs y selects de la encuesta: rounded + sombra + cursor */
+body.ms-page-encuesta .ms-encuesta-field,
+body.ms-page-encuesta select.ms-encuesta-field {
+    border-radius: var(--ms-radius-sm) !important;
+    border: 1px solid var(--ms-border-strong) !important;
+    background-color: var(--ms-card-bg) !important;
+    color: var(--ms-text) !important;
+    padding: 8px 12px !important;
+    box-shadow: var(--ms-shadow-sm);
+    transition: border-color .15s ease, box-shadow .2s ease, transform .15s ease;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+body.ms-page-encuesta select.ms-encuesta-field {
+    cursor: pointer;
+    padding-right: 28px !important;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+body.ms-page-encuesta .ms-encuesta-field:hover {
+    border-color: var(--ms-accent) !important;
+}
+
+body.ms-page-encuesta .ms-encuesta-field:focus {
+    outline: none !important;
+    border-color: var(--ms-accent) !important;
+    box-shadow: 0 0 0 3px var(--ms-accent-soft), var(--ms-shadow-sm);
+}
+
+html.ms-dark body.ms-page-encuesta .ms-encuesta-field {
+    background-color: var(--ms-card-bg-elev) !important;
+    border-color: var(--ms-border-strong) !important;
+}
+
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+}
+
+html.ms-dark body.ms-page-encuesta .ms-encuesta-field:focus {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+/* Options del select.
+   Nota: los <option> nativos solo permiten estilos limitados (bg, color, padding,
+   font). El popup lo dibuja el OS, así que el `cursor` y bordes no siempre se
+   respetan — esto es lo máximo realista sin reemplazar el <select> por un
+   componente custom. */
+body.ms-page-encuesta select.ms-encuesta-field option {
+    background-color: var(--ms-card-bg);
+    color: var(--ms-text);
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+body.ms-page-encuesta select.ms-encuesta-field option:hover,
+body.ms-page-encuesta select.ms-encuesta-field option:focus,
+body.ms-page-encuesta select.ms-encuesta-field option:checked {
+    background: linear-gradient(0deg, var(--ms-accent-soft), var(--ms-accent-soft)),
+                var(--ms-card-bg);
+    color: var(--ms-accent) !important;
+    font-weight: 600;
+}
+
+body.ms-page-encuesta select.ms-encuesta-field option[disabled],
+body.ms-page-encuesta select.ms-encuesta-field option[value=""] {
+    color: var(--ms-text-muted);
+    font-style: italic;
+}
+
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option {
+    background-color: var(--ms-card-bg-elev);
+    color: var(--ms-text);
+}
+
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option:hover,
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option:focus,
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option:checked {
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent-hover) !important;
+}
+
+/* Divisor limpio que reemplaza las filas de guiones del template original.
+   El JS detecta tr con texto que sea solo guiones y vacía sus celdas.
+   Con border-collapse las borders de td adyacentes se unen en una línea
+   continua que cruza las 3 columnas. */
+body.ms-page-encuesta tr.ms-encuesta-divider td,
+body.ms-page-encuesta tr.ms-encuesta-divider th {
+    padding: 14px 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-top: 1px solid var(--ms-border-strong) !important;
+    height: 0;
+    line-height: 0;
+}
+
+/* Botón de enviar: limpio, accent sólido (sin gradiente) */
+body.ms-page-encuesta .ms-encuesta-submit {
+    background: var(--ms-accent) !important;
+    background-image: none !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 12px 28px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    cursor: pointer;
+    transition: background-color .15s ease, transform .1s ease;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    height: auto !important;
+    width: auto !important;
+    min-width: 140px;
+    margin-top: 16px !important;
+}
+
+body.ms-page-encuesta .ms-encuesta-submit:hover {
+    background: var(--ms-accent-hover) !important;
+}
+
+body.ms-page-encuesta .ms-encuesta-submit:active {
+    transform: translateY(1px);
+}
+
+body.ms-page-encuesta .ms-encuesta-submit:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ms-accent-soft) !important;
+}

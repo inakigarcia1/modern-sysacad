@@ -881,6 +881,75 @@
         }
     }
 
+    // Encuesta: marca la página y detecta el header oscuro para restilizarlo.
+    function handleEncuesta() {
+        document.body.classList.add('ms-page-encuesta');
+
+        const root = document.querySelector('.page-generic') || document.body;
+
+        // Parsea "rgb(r,g,b)" o "rgba(r,g,b,a)" y devuelve la luminancia 0..1.
+        // Si el bg es transparente o no se puede parsear, devuelve null.
+        function bgLuminance(el) {
+            const bg = getComputedStyle(el).backgroundColor;
+            const m = bg.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)$/);
+            if (!m) return null;
+            const a = m[4] !== undefined ? parseFloat(m[4]) : 1;
+            if (a < 0.5) return null; // transparente → ignorar
+            const r = +m[1], g = +m[2], b = +m[3];
+            // Luminance approximation (ITU-R BT.601)
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        }
+
+        // Recorrer descendientes y encontrar el primer elemento con bg oscuro
+        // (luminance < 0.25) y texto sustancial. Ese es el banner del título.
+        const all = root.querySelectorAll('*');
+        for (const elem of all) {
+            const lum = bgLuminance(elem);
+            if (lum === null || lum >= 0.25) continue;
+            const text = (elem.textContent || '').trim();
+            if (text.length < 20) continue;
+            // Evitamos marcar contenedores gigantes: el header tipico tiene <800 chars
+            if (text.length > 800) continue;
+
+            elem.classList.add('ms-encuesta-header');
+            elem.removeAttribute('bgcolor');
+            // Limpiar inline (sin !important) para que el CSS de la clase gane
+            elem.style.background = '';
+            elem.style.backgroundColor = '';
+            elem.style.color = '';
+            elem.querySelectorAll('[bgcolor], [style*="background"], [style*="color"]').forEach(d => {
+                d.removeAttribute('bgcolor');
+                d.style.background = '';
+                d.style.backgroundColor = '';
+                d.style.color = '';
+            });
+            break; // solo el primero (outermost match en orden DOM)
+        }
+
+        // Marca los campos para estilarlos
+        root.querySelectorAll('select, input[type="text"], textarea').forEach(i => {
+            i.classList.add('ms-encuesta-field');
+        });
+
+        // Reemplazar las filas de guiones (separadores feos del template original)
+        // por un divisor limpio. Las detectamos como rows cuyo texto es solo
+        // guiones y espacios.
+        root.querySelectorAll('tr').forEach(tr => {
+            const text = (tr.textContent || '').trim();
+            if (/^[-\s]{10,}$/.test(text)) {
+                tr.classList.add('ms-encuesta-divider');
+                tr.querySelectorAll('td, th').forEach(c => {
+                    c.innerHTML = '';
+                });
+            }
+        });
+
+        // Botón de enviar
+        root.querySelectorAll('input[type="submit"], button[type="submit"]').forEach(b => {
+            b.classList.add('ms-encuesta-submit');
+        });
+    }
+
     function init() {
         initThemeAndFabs();
 
@@ -889,6 +958,7 @@
         if (path.includes('/alumnos/examenes')) handleExamenes();
         if (path.includes('/alumnos/materias_del_plan')) handleMateriasDelPlan();
         if (path.includes('/alumnos/cursado')) handleMateriasActuales();
+        if (path.includes('/alumnos/encuesta')) handleEncuesta();
         // Login: detección por DOM, no por URL (puede vivir en /, /login/, etc.)
         handleLogin();
     }
