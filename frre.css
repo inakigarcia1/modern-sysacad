@@ -923,6 +923,13 @@ html.ms-dark .ms-schedule-card {
     min-width: 0;
 }
 
+.ms-schedule-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
 .ms-schedule-download {
     display: inline-flex;
     align-items: center;
@@ -942,6 +949,101 @@ html.ms-dark .ms-schedule-card {
     flex-shrink: 0;
     white-space: nowrap;
     outline: none;
+}
+
+.ms-schedule-gcal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #16a34a !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-family: var(--ms-font) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: background-color .15s ease;
+    box-shadow: none !important;
+    transform: none !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+    outline: none;
+}
+
+.ms-schedule-gcal span,
+.ms-schedule-gcal svg {
+    color: #fff !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+}
+
+.ms-schedule-gcal:hover {
+    background: #15803d !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.ms-schedule-gcal:active {
+    background: #15803d !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.ms-schedule-gcal:focus {
+    outline: none;
+    box-shadow: none !important;
+}
+
+.ms-schedule-gcal:focus-visible {
+    outline: 2px solid #16a34a;
+    outline-offset: 2px;
+}
+
+.ms-schedule-gcal svg {
+    flex-shrink: 0;
+}
+
+#ms-gcal-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: var(--ms-font);
+    font-weight: 400;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 440px;
+    width: max-content;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+    line-height: 1.45;
+}
+
+#ms-gcal-toast.ms-gcal-toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+#ms-gcal-toast strong {
+    color: #86efac;
+    font-weight: 600;
+}
+
+#ms-gcal-toast svg {
+    color: #4ade80;
+    flex-shrink: 0;
 }
 
 /* Forzar blanco en el span y el SVG (el `.page-generic span` global

@@ -821,6 +821,111 @@
         setTimeout(() => URL.revokeObjectURL(url), 100);
     }
 
+    function openInGoogleCalendar(rowsData) {
+        const dayToJS = [1, 2, 3, 4, 5, 6, 0];
+        const BYDAY   = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+
+        function nextOccurrence(dayIdx) {
+            const jsDay = dayToJS[dayIdx];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let diff = jsDay - today.getDay();
+            if (diff <= 0) diff += 7;
+            const d = new Date(today);
+            d.setDate(d.getDate() + diff);
+            return d;
+        }
+        function fmtDate(d) {
+            return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+        }
+        function fmtTime(mins) {
+            return String(Math.floor(mins / 60)).padStart(2, '0') + String(mins % 60).padStart(2, '0') + '00';
+        }
+        function uid() {
+            return Math.random().toString(36).slice(2) + Date.now().toString(36) + '@sysacad-frre';
+        }
+
+        const now = new Date();
+        const dtstamp = now.getUTCFullYear() +
+            String(now.getUTCMonth() + 1).padStart(2, '0') +
+            String(now.getUTCDate()).padStart(2, '0') + 'T' +
+            String(now.getUTCHours()).padStart(2, '0') +
+            String(now.getUTCMinutes()).padStart(2, '0') +
+            String(now.getUTCSeconds()).padStart(2, '0') + 'Z';
+
+        const lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//SYSACAD FRRe//Horarios de Cursado//ES',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'X-WR-CALNAME:Horarios FRRe',
+            'X-WR-TIMEZONE:America/Argentina/Buenos_Aires',
+            'BEGIN:VTIMEZONE',
+            'TZID:America/Argentina/Buenos_Aires',
+            'BEGIN:STANDARD',
+            'TZOFFSETFROM:-0300',
+            'TZOFFSETTO:-0300',
+            'TZNAME:ART',
+            'DTSTART:19700101T000000',
+            'END:STANDARD',
+            'END:VTIMEZONE',
+        ];
+
+        rowsData.forEach(({ materia, comision, events }) => {
+            const summary = (comision ? `${materia} (${comision})` : materia)
+                .replace(/[,;\\]/g, '\\$&');
+            events.forEach(ev => {
+                if (ev.dayIdx > 6) return;
+                const startDate = nextOccurrence(ev.dayIdx);
+                lines.push(
+                    'BEGIN:VEVENT',
+                    `UID:${uid()}`,
+                    `DTSTAMP:${dtstamp}`,
+                    `DTSTART;TZID=America/Argentina/Buenos_Aires:${fmtDate(startDate)}T${fmtTime(ev.start)}`,
+                    `DTEND;TZID=America/Argentina/Buenos_Aires:${fmtDate(startDate)}T${fmtTime(ev.end)}`,
+                    `RRULE:FREQ=WEEKLY;BYDAY=${BYDAY[ev.dayIdx]};COUNT=18`,
+                    `SUMMARY:${summary}`,
+                    'END:VEVENT'
+                );
+            });
+        });
+
+        lines.push('END:VCALENDAR');
+
+        const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'horarios-cursado.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+
+        // Abre la página de importación de GCal (1 sola pestaña)
+        window.open('https://calendar.google.com/calendar/r/settings/import', '_blank');
+
+        showGCalToast();
+    }
+
+    function showGCalToast() {
+        document.getElementById('ms-gcal-toast')?.remove();
+        const toast = el('div', {
+            attrs: { id: 'ms-gcal-toast' },
+            html: `
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Archivo descargado. En la pestaña de Google Calendar que se abrió, seleccioná <strong>horarios-cursado.ics</strong> e importá.</span>
+            `
+        });
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('ms-gcal-toast--visible'));
+        setTimeout(() => {
+            toast.classList.remove('ms-gcal-toast--visible');
+            setTimeout(() => toast.remove(), 400);
+        }, 8000);
+    }
+
     function buildScheduleGrid(rowsData) {
         const dayCount = 6; // Lun-Sáb
         const dayNames = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'];
@@ -880,7 +985,21 @@
             `
         });
         downloadBtn.addEventListener('click', () => downloadScheduleXLS(rowsData));
-        head.appendChild(downloadBtn);
+
+        const gcalBtn = el('button', {
+            className: 'ms-schedule-gcal',
+            attrs: { type: 'button', title: 'Exportar horarios a Google Calendar (.ics)' },
+            html: `
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>Google Calendar</span>
+            `
+        });
+        gcalBtn.addEventListener('click', () => openInGoogleCalendar(rowsData));
+
+        const actions = el('div', { className: 'ms-schedule-actions' });
+        actions.appendChild(gcalBtn);
+        actions.appendChild(downloadBtn);
+        head.appendChild(actions);
         card.appendChild(head);
 
         // Wrapper con scroll horizontal en mobile
