@@ -1,0 +1,2105 @@
+/* ============================================================
+   ModernSysacad — FRRe (SYSACAD-WEB)
+   Diseño moderno: minimalista, claro y elegante.
+   Convive con Bootstrap 3 del sitio destino sin romperlo.
+   ============================================================ */
+
+/* ---------- Design tokens ---------- */
+html {
+    --ms-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+               "Helvetica Neue", system-ui, sans-serif;
+
+    /* Surfaces */
+    --ms-page-bg: #f5f7fb;
+    --ms-card-bg: #ffffff;
+    --ms-card-bg-elev: #fafbfd;
+    --ms-sidebar-bg: #0d1224;
+    --ms-sidebar-hover: rgba(255, 255, 255, 0.06);
+    --ms-topnav-bg: rgba(255, 255, 255, 0.85);
+
+    /* Text */
+    --ms-text: #0f172a;
+    --ms-text-secondary: #475569;
+    --ms-text-muted: #94a3b8;
+
+    /* Accents */
+    --ms-accent: #4f63d0;
+    --ms-accent-hover: #3b4eb8;
+    --ms-accent-soft: #eef0fb;
+
+    /* Borders */
+    --ms-border: #e7eaf2;
+    --ms-border-strong: #d8dde9;
+
+    /* Status colors */
+    --ms-success: #10b981;
+    --ms-success-soft: #d1fae5;
+    --ms-warning: #f59e0b;
+    --ms-warning-soft: #fef3c7;
+    --ms-danger: #ef4444;
+    --ms-danger-soft: #fee2e2;
+
+    /* Banner gradient (mismo en ambos modos, look rico) */
+    --ms-banner-grad: linear-gradient(135deg, #4f63d0, #3b4eb8);
+    --ms-banner-grad-success: linear-gradient(135deg, #10b981, #059669);
+
+    /* Radii */
+    --ms-radius-sm: 6px;
+    --ms-radius: 10px;
+    --ms-radius-lg: 14px;
+
+    /* Shadows */
+    --ms-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04),
+                    0 1px 3px rgba(15, 23, 42, 0.06);
+    --ms-shadow: 0 1px 3px rgba(15, 23, 42, 0.05),
+                 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+    --ms-shadow-lg: 0 4px 8px -2px rgba(15, 23, 42, 0.06),
+                    0 16px 32px -8px rgba(15, 23, 42, 0.12);
+}
+
+html.ms-dark {
+    --ms-page-bg: #0a0d1a;
+    /* Card bg "elevado" para FABs y similares (visible sobre el page bg) */
+    --ms-card-bg: #161c2e;
+    --ms-card-bg-elev: #1a2038;
+    --ms-sidebar-bg: #06080f;
+    --ms-sidebar-hover: rgba(255, 255, 255, 0.04);
+    --ms-topnav-bg: rgba(15, 18, 32, 0.85);
+
+    --ms-text: #f1f5f9;
+    --ms-text-secondary: #cbd5e1;
+    --ms-text-muted: #6b7280;
+
+    --ms-accent: #818cf8;
+    --ms-accent-hover: #a5b4fc;
+    --ms-accent-soft: rgba(129, 140, 248, 0.12);
+
+    --ms-border: rgba(255, 255, 255, 0.06);
+    --ms-border-strong: rgba(255, 255, 255, 0.12);
+
+    /* Status: tonos más brillantes para destacar sobre dark bg */
+    --ms-success: #34d399;
+    --ms-success-soft: rgba(52, 211, 153, 0.18);
+    --ms-warning: #fbbf24;
+    --ms-warning-soft: rgba(251, 191, 36, 0.18);
+    --ms-danger: #f87171;
+    --ms-danger-soft: rgba(248, 113, 113, 0.18);
+
+    --ms-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --ms-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4),
+                 0 16px 32px -8px rgba(0, 0, 0, 0.3);
+    --ms-shadow-lg: 0 8px 16px -4px rgba(0, 0, 0, 0.4),
+                    0 24px 48px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Reset del sitio ---------- */
+body {
+    background-image: none !important;
+    background-color: var(--ms-page-bg) !important;
+    font-family: var(--ms-font) !important;
+    color: var(--ms-text) !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Top navigation ---------- */
+.top-nav {
+    background: var(--ms-topnav-bg) !important;
+    opacity: 1 !important;
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid var(--ms-border);
+    padding: 0 24px !important;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.top-nav .text-center {
+    flex: 1;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.top-nav .wel:first-child > span {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ms-text-muted) !important;
+}
+
+.top-nav .wel:last-child > span {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--ms-text) !important;
+    display: inline-block;
+    margin-top: 2px;
+}
+
+.top-nav .wel:last-child > span > span {
+    color: var(--ms-accent) !important;
+    font-weight: 700 !important;
+}
+
+/* ---------- Sidebar ---------- */
+#sidebar-wrapper {
+    background: var(--ms-sidebar-bg) !important;
+    opacity: 1 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.sidebar-nav li:before {
+    display: none !important;
+}
+
+.sidebar-nav li:first-child a {
+    background-color: transparent !important;
+    padding: 18px 24px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.5) !important;
+    cursor: pointer;
+}
+
+.sidebar-nav li a {
+    color: rgba(255, 255, 255, 0.78) !important;
+    padding: 10px 20px !important;
+    margin: 1px 10px !important;
+    border-radius: var(--ms-radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.sidebar-nav li a:hover,
+.sidebar-nav li.open > a {
+    background-color: var(--ms-sidebar-hover) !important;
+    color: #fff !important;
+}
+
+.sidebar-nav .dropdown-menu {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.sidebar-nav .dropdown-menu > li > a {
+    padding-left: 36px !important;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.sidebar-nav .dropdown-header {
+    color: rgba(255, 255, 255, 0.4) !important;
+    font-size: 10px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 12px 24px 4px !important;
+    font-weight: 700;
+}
+
+.sidebar-nav .dropdown-toggle .caret {
+    margin-left: 6px;
+    opacity: 0.5;
+}
+
+/* Hamburger */
+.hamburger {
+    width: 28px !important;
+    height: 24px !important;
+}
+.hamburger .hamb-top,
+.hamburger .hamb-middle,
+.hamburger .hamb-bottom {
+    background-color: var(--ms-text) !important;
+    height: 2px !important;
+    border-radius: 1px;
+}
+
+/* ---------- Card central ---------- */
+.page-generic {
+    background-color: var(--ms-card-bg) !important;
+    opacity: 1 !important;
+    border-radius: var(--ms-radius-lg) !important;
+    border: 1px solid var(--ms-border);
+    box-shadow: var(--ms-shadow);
+    padding: 32px !important;
+    margin-top: 32px !important;
+    min-height: auto !important;
+}
+
+/* En dark mode: card súper tenue — un hint de fondo + hairline border.
+   Suficiente para anclar el contenido sin marcar un rectángulo pesado. */
+html.ms-dark .page-generic {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 600px) {
+    .page-generic {
+        padding: 20px !important;
+        border-radius: var(--ms-radius) !important;
+    }
+}
+
+.page-generic > .text-center {
+    text-align: left !important;
+}
+
+.page-generic > .text-center > span {
+    color: var(--ms-text) !important;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    display: inline-block;
+}
+
+.page-generic > .text-center > hr {
+    border-top-color: var(--ms-border) !important;
+    margin: 16px 0 24px !important;
+}
+
+.page-generic .panel-body {
+    padding: 0 !important;
+}
+
+/* ---------- Tablas ---------- */
+.page-generic .table-responsive {
+    border: none !important;
+    margin: 0;
+}
+
+/* Borrar el border externo del <table> que pone Bootstrap con .table-bordered */
+.page-generic .table,
+.page-generic .table-bordered,
+.page-generic table {
+    margin-bottom: 0 !important;
+    background: transparent;
+    border: none !important;
+}
+
+.page-generic .table > thead > tr > th {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--ms-border-strong) !important;
+    background: transparent !important;
+    color: var(--ms-text-muted) !important;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 12px 14px !important;
+    vertical-align: middle !important;
+}
+
+.page-generic .table > tbody > tr > td {
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 14px !important;
+    vertical-align: middle !important;
+    color: var(--ms-text);
+    font-size: 14px;
+}
+
+.page-generic .table > tbody > tr:last-child > td {
+    border-bottom: none !important;
+}
+
+.page-generic .table-hover > tbody > tr:hover {
+    background-color: var(--ms-accent-soft) !important;
+}
+
+.page-generic .table a {
+    color: var(--ms-accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+.page-generic .table a:hover {
+    color: var(--ms-accent-hover);
+    text-decoration: underline;
+}
+
+/* ---------- FAB stack ---------- */
+#ms-fab-stack {
+    position: fixed;
+    top: 80px; /* Debajo de la top-nav (64px alto + 16px gap) */
+    right: 14px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ms-fab {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--ms-card-bg);
+    color: var(--ms-text-secondary);
+    border: 1px solid var(--ms-border);
+    box-shadow: var(--ms-shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform .15s ease, color .15s ease, box-shadow .15s ease;
+    text-decoration: none !important;
+    padding: 0;
+}
+
+.ms-fab svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.ms-fab:hover,
+.ms-fab:focus {
+    transform: translateY(-1px);
+    color: var(--ms-accent);
+    box-shadow: var(--ms-shadow);
+    outline: none;
+    text-decoration: none !important;
+}
+
+@media (max-width: 600px) {
+    #ms-fab-stack {
+        top: auto;
+        bottom: 120px;
+        right: 12px;
+    }
+}
+
+/* ---------- Credits popup (4° FAB) ---------- */
+.ms-fab-anchor {
+    position: relative;
+    width: 38px;
+    height: 38px;
+}
+
+.ms-credits-popup {
+    position: absolute;
+    top: 0;
+    right: calc(100% + 12px);
+    width: 260px;
+    background: var(--ms-card-bg);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    box-shadow: var(--ms-shadow-lg);
+    padding: 16px 18px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(8px) scale(0.96);
+    transform-origin: top right;
+    transition: opacity .2s ease, transform .25s cubic-bezier(0.2, 0.8, 0.2, 1), visibility .2s;
+    pointer-events: none;
+    z-index: 1200;
+}
+
+html.ms-dark .ms-credits-popup {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.ms-credits-popup.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+}
+
+.ms-credits-head {
+    margin-bottom: 14px;
+}
+
+.ms-credits-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ms-text);
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ms-credits-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent);
+    text-transform: uppercase;
+}
+
+.ms-credits-subtitle {
+    font-size: 12px;
+    color: var(--ms-text-muted);
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+.ms-credits-section {
+    border-top: 1px solid var(--ms-border);
+    padding-top: 12px;
+    margin-bottom: 12px;
+}
+
+.ms-credits-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ms-text-muted);
+    margin-bottom: 8px;
+}
+
+.ms-credits-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ms-credits-list li {
+    font-size: 13px;
+    color: var(--ms-text);
+    font-weight: 500;
+    padding-left: 12px;
+    position: relative;
+}
+
+.ms-credits-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ms-accent);
+}
+
+.ms-credits-list li a {
+    color: inherit;
+    text-decoration: none;
+    transition: color .15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ms-credits-list li a:hover,
+.ms-credits-list li a:focus {
+    color: var(--ms-accent);
+    text-decoration: none;
+    outline: none;
+}
+
+.ms-credits-list li a::after {
+    content: "↗";
+    font-size: 11px;
+    opacity: 0;
+    transform: translate(-2px, 1px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+
+.ms-credits-list li a:hover::after,
+.ms-credits-list li a:focus::after {
+    opacity: 0.7;
+    transform: translate(0, 0);
+}
+
+.ms-credits-foot {
+    border-top: 1px solid var(--ms-border);
+    padding-top: 12px;
+    font-size: 11px;
+    color: var(--ms-text-muted);
+    line-height: 1.5;
+}
+
+.ms-credits-foot a {
+    color: var(--ms-accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.ms-credits-foot a:hover {
+    text-decoration: underline;
+}
+
+/* En mobile el popup aparece HACIA ARRIBA en lugar de a la izquierda
+   (porque el FAB stack está al fondo y queremos que el popup no se salga) */
+@media (max-width: 600px) {
+    .ms-credits-popup {
+        top: auto;
+        bottom: calc(100% + 12px);
+        right: 0;
+        transform-origin: bottom right;
+        transform: translateY(8px) scale(0.96);
+    }
+    .ms-credits-popup.is-open {
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ---------- Banner promedio ---------- */
+.ms-banner {
+    background: var(--ms-banner-grad);
+    color: #fff;
+    padding: 24px 28px;
+    border-radius: var(--ms-radius);
+    text-align: left;
+    margin: 0 0 20px;
+    box-shadow: var(--ms-shadow-sm);
+    animation: ms-fadeInUp .35s ease both;
+}
+
+.ms-banner-success {
+    background: var(--ms-banner-grad-success);
+}
+
+.ms-banner-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.ms-banner-value {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 8px 0 6px;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+}
+
+.ms-banner-subtitle {
+    font-size: 12px;
+    opacity: 0.88;
+    font-weight: 500;
+}
+
+.ms-banners-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 0 0 20px;
+}
+.ms-banners-row .ms-banner {
+    margin: 0;
+}
+@media (max-width: 600px) {
+    .ms-banners-row {
+        grid-template-columns: 1fr;
+    }
+    .ms-banner-value {
+        font-size: 36px;
+    }
+}
+
+/* ---------- Year stats grid ---------- */
+.ms-year-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin: 0 0 24px;
+}
+
+.ms-year-card {
+    background: var(--ms-card-bg-elev);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    padding: 14px 12px;
+    text-align: center;
+    transition: transform .15s ease, box-shadow .15s ease;
+    animation: ms-fadeInUp .45s ease both;
+    animation-delay: calc(var(--ms-stagger-index, 0) * 65ms);
+}
+
+html.ms-dark .ms-year-card {
+    border-color: transparent;
+    background: var(--ms-card-bg-elev);
+}
+
+.ms-year-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ms-shadow-sm);
+}
+
+.ms-year-card-best {
+    border-color: var(--ms-accent);
+    background: var(--ms-accent-soft);
+    position: relative;
+}
+
+html.ms-dark .ms-year-card-best {
+    border-color: rgba(129, 140, 248, 0.4);
+    background: rgba(129, 140, 248, 0.1);
+}
+
+.ms-year-card-best::after {
+    content: "★";
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 11px;
+    color: var(--ms-accent);
+    transform-origin: center;
+    animation: ms-star-wobble 5s ease-in-out infinite;
+}
+
+@keyframes ms-star-wobble {
+    0%, 70%, 100% { transform: rotate(0deg) scale(1); }
+    75% { transform: rotate(-18deg) scale(1.15); }
+    82% { transform: rotate(14deg) scale(1.15); }
+    89% { transform: rotate(-6deg) scale(1.05); }
+    95% { transform: rotate(0deg) scale(1); }
+}
+
+.ms-year-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ms-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.ms-year-promedio {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--ms-accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.ms-year-count {
+    font-size: 11px;
+    color: var(--ms-text-muted);
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+/* ---------- Status dots en Estado Académico ---------- */
+.ms-status {
+    position: relative;
+    padding-left: 18px !important;
+}
+
+.ms-status::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ms-text-muted);
+}
+
+.ms-status-aprobada::before {
+    background: var(--ms-success);
+    box-shadow: 0 0 0 3px var(--ms-success-soft);
+}
+
+.ms-status-equiv::before {
+    background: var(--ms-text-muted);
+}
+
+.ms-status-cursando::before {
+    background: var(--ms-warning);
+    animation: ms-pulse-warning 2s ease-out infinite;
+}
+
+@keyframes ms-pulse-warning {
+    0% {
+        box-shadow: 0 0 0 0 var(--ms-warning-soft),
+                    0 0 0 0 rgba(245, 158, 11, 0.45);
+    }
+    70% {
+        box-shadow: 0 0 0 6px var(--ms-warning-soft),
+                    0 0 0 10px rgba(245, 158, 11, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 transparent,
+                    0 0 0 0 transparent;
+    }
+}
+
+/* ---------- Exámenes: nota cell ---------- */
+.ms-nota-cell {
+    text-align: center !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.ms-nota-aprobada {
+    color: var(--ms-success) !important;
+    font-weight: 700 !important;
+}
+
+.ms-nota-aplazo {
+    color: var(--ms-danger) !important;
+    font-weight: 700 !important;
+}
+
+/* ---------- Materias del Plan: Si/No badges ---------- */
+.ms-yesno-cell {
+    text-align: center !important;
+    padding: 14px 8px !important;
+}
+
+.ms-yes {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--ms-success);
+    color: #fff;
+    box-shadow: 0 0 0 4px var(--ms-success-soft);
+}
+
+.ms-yes svg {
+    stroke-width: 3;
+}
+
+.ms-no {
+    color: var(--ms-text-muted);
+    font-weight: 500;
+    font-size: 16px;
+}
+
+/* ---------- Container general de enhancements ---------- */
+.ms-enhancements > * {
+    margin: 0 0 16px 0 !important;
+}
+.ms-enhancements > *:last-child {
+    margin-bottom: 22px !important;
+}
+
+/* ---------- Stat row (Aprobadas / Cursando / Equivalencias / etc) ---------- */
+.ms-stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.ms-stat-card {
+    background: var(--ms-card-bg-elev);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    padding: 14px 16px;
+    position: relative;
+    animation: ms-fadeInUp .45s ease both;
+    animation-delay: calc(var(--ms-stagger-index, 0) * 70ms);
+}
+
+html.ms-dark .ms-stat-card {
+    border-color: transparent;
+}
+
+.ms-stat-card::before {
+    content: "";
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ms-text-muted);
+}
+
+.ms-stat-card.ms-stat-aprobada::before {
+    background: var(--ms-success);
+    box-shadow: 0 0 0 4px var(--ms-success-soft);
+}
+
+.ms-stat-card.ms-stat-cursando::before {
+    background: var(--ms-warning);
+    box-shadow: 0 0 0 4px var(--ms-warning-soft);
+}
+
+.ms-stat-card.ms-stat-equiv::before,
+.ms-stat-card.ms-stat-neutral::before {
+    background: var(--ms-text-muted);
+}
+
+.ms-stat-card.ms-stat-aplazo::before {
+    background: var(--ms-danger);
+    box-shadow: 0 0 0 4px var(--ms-danger-soft);
+}
+
+.ms-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ms-text-muted);
+    margin-bottom: 8px;
+}
+
+.ms-stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--ms-text);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Progress bar de carrera ---------- */
+.ms-progress-card {
+    background: var(--ms-card-bg-elev);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    padding: 16px 18px;
+    animation: ms-fadeInUp .4s ease both;
+}
+
+html.ms-dark .ms-progress-card {
+    border-color: transparent;
+}
+
+.ms-progress-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+}
+
+.ms-progress-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ms-text-muted);
+}
+
+.ms-progress-pct {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--ms-accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.ms-progress-track {
+    height: 8px;
+    background: var(--ms-accent-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.ms-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ms-accent), var(--ms-accent-hover));
+    border-radius: 999px;
+    transition: width .6s cubic-bezier(.2, .8, .2, 1);
+}
+
+.ms-progress-foot {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--ms-text-secondary);
+}
+
+.ms-progress-foot strong {
+    color: var(--ms-text);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Schedule (grilla semanal de Materias Actuales) ---------- */
+.ms-schedule-card {
+    background: var(--ms-card-bg-elev);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius-lg);
+    padding: 20px;
+    margin-top: 24px;
+    animation: ms-fadeInUp .5s ease both;
+}
+
+html.ms-dark .ms-schedule-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+.ms-schedule-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.ms-schedule-head-info {
+    min-width: 0;
+}
+
+.ms-schedule-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.ms-schedule-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--ms-accent) !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-family: var(--ms-font) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: background-color .15s ease;
+    box-shadow: none !important;
+    transform: none !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+    outline: none;
+}
+
+.ms-schedule-gcal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #16a34a !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-family: var(--ms-font) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: background-color .15s ease;
+    box-shadow: none !important;
+    transform: none !important;
+    flex-shrink: 0;
+    white-space: nowrap;
+    outline: none;
+}
+
+.ms-schedule-gcal span,
+.ms-schedule-gcal svg {
+    color: #fff !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+}
+
+.ms-schedule-gcal:hover {
+    background: #15803d !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.ms-schedule-gcal:active {
+    background: #15803d !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.ms-schedule-gcal:focus {
+    outline: none;
+    box-shadow: none !important;
+}
+
+.ms-schedule-gcal:focus-visible {
+    outline: 2px solid #16a34a;
+    outline-offset: 2px;
+}
+
+.ms-schedule-gcal svg {
+    flex-shrink: 0;
+}
+
+#ms-gcal-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: var(--ms-font);
+    font-weight: 400;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    max-width: 440px;
+    width: max-content;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity .3s ease, transform .3s ease;
+    pointer-events: none;
+    line-height: 1.45;
+}
+
+#ms-gcal-toast.ms-gcal-toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+#ms-gcal-toast strong {
+    color: #86efac;
+    font-weight: 600;
+}
+
+#ms-gcal-toast svg {
+    color: #4ade80;
+    flex-shrink: 0;
+}
+
+/* Forzar blanco en el span y el SVG (el `.page-generic span` global
+   estaba ganando con color heredado) */
+.ms-schedule-download span,
+.ms-schedule-download svg {
+    color: #fff !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+}
+
+.ms-schedule-download:hover {
+    background: var(--ms-accent-hover) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.ms-schedule-download:active {
+    background: var(--ms-accent-hover) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.ms-schedule-download:focus {
+    outline: none;
+    box-shadow: none !important;
+}
+
+.ms-schedule-download:focus-visible {
+    outline: 2px solid var(--ms-accent);
+    outline-offset: 2px;
+}
+
+.ms-schedule-download svg {
+    flex-shrink: 0;
+}
+
+.ms-schedule-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ms-text);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.ms-schedule-subtitle {
+    font-size: 12px;
+    color: var(--ms-text-muted);
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* Wrap interno con scroll horizontal en mobile, manteniendo legibilidad */
+.ms-schedule-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 0 -4px;
+    padding: 0 4px;
+}
+
+/* CSS Grid: 1 columna de label de hora + 6 columnas de días.
+   Usamos gap: 1px sobre fondo border-color para crear líneas entre celdas
+   sin tener que manejar bordes per-celda. */
+.ms-schedule-table {
+    display: grid;
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    overflow: hidden;
+    background: var(--ms-border);
+    gap: 1px;
+    min-width: 720px;
+}
+
+.ms-schedule-corner,
+.ms-schedule-day-name,
+.ms-schedule-time-label,
+.ms-schedule-cell {
+    background: var(--ms-card-bg);
+}
+
+.ms-schedule-corner,
+.ms-schedule-day-name {
+    background: var(--ms-card-bg-elev);
+    padding: 10px 8px;
+}
+
+.ms-schedule-day-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--ms-text-secondary);
+    text-align: center;
+}
+
+.ms-schedule-time-label {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    background: var(--ms-card-bg-elev);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.ms-schedule-cell {
+    min-height: 44px;
+}
+
+.ms-schedule-block {
+    /* linear-gradient(color, color) genera una imagen sólida del tinte,
+       apilada sobre var(--ms-card-bg) opaco — oculta las líneas de la grid
+       en el área del bloque. */
+    background:
+        linear-gradient(var(--ms-block-bg, var(--ms-accent-soft)), var(--ms-block-bg, var(--ms-accent-soft))),
+        var(--ms-card-bg);
+    border-left: 3px solid var(--ms-block-color, var(--ms-accent));
+    border-radius: 8px;
+    margin: 3px;
+    padding: 7px 10px;
+    overflow: hidden;
+    cursor: default;
+    transition: filter .15s ease;
+    z-index: 1;
+    align-self: stretch;
+    justify-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ms-schedule-block:hover {
+    filter: brightness(0.97);
+    z-index: 2;
+}
+
+html.ms-dark .ms-schedule-block:hover {
+    filter: brightness(1.1);
+}
+
+.ms-schedule-block-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ms-text);
+    line-height: 1.25;
+    margin-bottom: 2px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.ms-schedule-block-time {
+    font-size: 10px;
+    color: var(--ms-text-secondary);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.ms-schedule-block-comision {
+    font-size: 10px;
+    color: var(--ms-text-muted);
+    font-weight: 500;
+    margin-top: 1px;
+}
+
+@media (max-width: 600px) {
+    .ms-schedule-card {
+        padding: 14px;
+    }
+    .ms-schedule-title {
+        font-size: 14px;
+    }
+    .ms-schedule-block-title {
+        font-size: 10px;
+    }
+    .ms-schedule-block-time,
+    .ms-schedule-block-comision {
+        font-size: 9px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ms-schedule-card,
+    .ms-schedule-block {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ---------- Search input ---------- */
+.ms-search-wrap {
+    position: relative;
+}
+
+.ms-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ms-text-muted);
+    display: flex;
+    pointer-events: none;
+}
+
+.ms-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    background: var(--ms-card-bg-elev);
+    color: var(--ms-text);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    line-height: 1.4;
+}
+
+html.ms-dark .ms-search-input {
+    border-color: transparent;
+}
+
+.ms-search-input::placeholder {
+    color: var(--ms-text-muted);
+}
+
+.ms-search-input:focus {
+    outline: none;
+    border-color: var(--ms-accent);
+    box-shadow: 0 0 0 3px var(--ms-accent-soft);
+}
+
+/* ============================================================
+   Login page
+   ============================================================ */
+
+/* Card central (.panel.panel-default tiene inline style="bg: rgba(255,255,255,0.5)") */
+.panel.panel-default {
+    background-color: var(--ms-card-bg) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius-lg) !important;
+    box-shadow: var(--ms-shadow) !important;
+    padding: 8px;
+}
+
+html.ms-dark .panel.panel-default {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: none !important;
+}
+
+.panel-body {
+    padding: 32px 24px !important;
+}
+
+/* Header: logo + títulos */
+.head-cap {
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding-bottom: 16px !important;
+    margin-bottom: 20px !important;
+}
+
+.head-cap h3 {
+    color: var(--ms-text) !important;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 22px;
+    margin: 4px 0;
+    line-height: 1.25;
+}
+
+.head-cap h4 {
+    color: var(--ms-text-secondary) !important;
+    font-weight: 500;
+    font-size: 14px;
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
+/* Logo UTN moderno reemplazado por la extensión */
+.ms-utn-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 64px;
+    object-fit: contain;
+    display: block;
+    margin: 8px auto;
+}
+
+/* En dark mode el logo es negro → invierto para que se vea blanco */
+html.ms-dark .ms-utn-logo {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* Form inputs */
+.log-area .form-control,
+.log-area input.textinput {
+    background-color: var(--ms-card-bg-elev) !important;
+    color: var(--ms-text) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius-sm) !important;
+    height: 42px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    box-shadow: none !important;
+    transition: border-color .2s ease, box-shadow .2s ease !important;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+html.ms-dark .log-area .form-control,
+html.ms-dark .log-area input.textinput {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.log-area .form-control:focus,
+.log-area input.textinput:focus {
+    border-color: var(--ms-accent) !important;
+    box-shadow: 0 0 0 3px var(--ms-accent-soft) !important;
+    outline: none !important;
+}
+
+/* Override del autofill amarillo/blanco de Chrome/Safari.
+   Truco: -webkit-box-shadow inset con spread grande pinta el bg sin
+   tocar el estado nativo del navegador. Transition larga previene
+   que Chrome restaure su color en subsiguientes cambios de estado. */
+.log-area input.form-control:-webkit-autofill,
+.log-area input.form-control:-webkit-autofill:hover,
+.log-area input.form-control:-webkit-autofill:focus,
+.log-area input.form-control:-webkit-autofill:active,
+.log-area input.textinput:-webkit-autofill,
+.log-area input.textinput:-webkit-autofill:hover,
+.log-area input.textinput:-webkit-autofill:focus,
+.log-area input.textinput:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 100px var(--ms-card-bg-elev) inset !important;
+    -webkit-text-fill-color: var(--ms-text) !important;
+    caret-color: var(--ms-text) !important;
+    border-color: var(--ms-border) !important;
+    transition: background-color 9999s ease-in-out 0s,
+                color 9999s ease-in-out 0s,
+                border-color .2s ease,
+                box-shadow .2s ease !important;
+}
+
+.log-area input.form-control:-webkit-autofill:focus,
+.log-area input.textinput:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 100px var(--ms-card-bg-elev) inset,
+                        0 0 0 3px var(--ms-accent-soft) !important;
+    border-color: var(--ms-accent) !important;
+}
+
+html.ms-dark .log-area input:-webkit-autofill {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.log-area .form-group {
+    margin-bottom: 16px !important;
+}
+
+.log-area .form-group label.control-label {
+    color: var(--ms-text) !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    margin-bottom: 6px !important;
+    text-align: left !important;
+    display: block;
+}
+
+.log-area .asteriskField {
+    color: var(--ms-danger);
+    margin-left: 2px;
+}
+
+/* Botón Acceder */
+.log-area input.btn-primary,
+input[type="submit"].btn-primary {
+    background: linear-gradient(135deg, var(--ms-accent), var(--ms-accent-hover)) !important;
+    background-color: var(--ms-accent) !important;
+    border: none !important;
+    color: #fff !important;
+    padding: 12px 24px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    height: auto !important;
+    width: 100% !important;
+    float: none !important;
+    margin-left: 0 !important;
+    margin-top: 8px !important;
+    text-shadow: none !important;
+    transition: transform .15s ease, box-shadow .2s ease !important;
+    cursor: pointer;
+}
+
+.log-area input.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -4px rgba(79, 99, 208, 0.4) !important;
+}
+
+.log-area input.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Link "Encontralo ACA!" — el original tiene inline style con !important blue */
+.panel-body a[href*="/Consulta/"] {
+    color: var(--ms-accent) !important;
+    text-decoration: none !important;
+    font-weight: 600;
+    transition: color .15s ease;
+}
+
+.panel-body a[href*="/Consulta/"]:hover {
+    color: var(--ms-accent-hover) !important;
+    text-decoration: underline !important;
+}
+
+.panel-body label.control-label[class]:not(.asteriskField) {
+    color: var(--ms-text-secondary);
+}
+
+/* Ocultar las funkyradio originales (se reemplazan por segmented control) */
+.log-area .funkyradio {
+    display: none !important;
+}
+
+/* ---------- Segmented Control "Alumno / Docente" ---------- */
+.ms-login-toggle-wrap {
+    margin-bottom: 24px;
+    padding: 0;
+}
+
+.ms-login-toggle {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--ms-card-bg-elev);
+    border-radius: 999px;
+    padding: 4px;
+    border: 1px solid var(--ms-border);
+}
+
+html.ms-dark .ms-login-toggle {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.ms-login-toggle-indicator {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    background: linear-gradient(135deg, var(--ms-accent), var(--ms-accent-hover));
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(79, 99, 208, 0.35);
+    transition: transform .35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.ms-login-toggle.is-right .ms-login-toggle-indicator {
+    transform: translateX(100%);
+}
+
+.ms-login-toggle-option {
+    position: relative;
+    z-index: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 16px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    cursor: pointer;
+    transition: color .25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    border-radius: 999px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ms-login-toggle-option:hover {
+    color: var(--ms-text);
+}
+
+.ms-login-toggle-option.is-active {
+    color: #fff !important;
+}
+
+.ms-login-toggle-option:focus {
+    outline: none;
+}
+
+.ms-login-toggle-option svg {
+    flex-shrink: 0;
+}
+
+/* ---------- Footer ---------- */
+.footPosition {
+    background-color: var(--ms-page-bg) !important;
+    opacity: 1 !important;
+    border-top: 1px solid var(--ms-border);
+    height: auto !important;
+    padding: 24px 0 !important;
+}
+
+.footStyle {
+    color: var(--ms-text-muted) !important;
+    font-size: 12px !important;
+    font-weight: 500;
+    margin: 2px 0 !important;
+}
+
+/* ---------- Inputs / botones nativos en dark mode ---------- */
+html.ms-dark input[type="text"],
+html.ms-dark input[type="password"],
+html.ms-dark input[type="email"],
+html.ms-dark input[type="number"],
+html.ms-dark input[type="search"],
+html.ms-dark select,
+html.ms-dark textarea {
+    background-color: var(--ms-card-bg-elev) !important;
+    color: var(--ms-text) !important;
+    border-color: var(--ms-border-strong) !important;
+}
+
+html.ms-dark .btn-default {
+    background-color: var(--ms-card-bg-elev) !important;
+    color: var(--ms-text) !important;
+    border-color: var(--ms-border-strong) !important;
+}
+
+/* ---------- Selector más general necesario para evitar
+              herencia del color del título a otros spans ---------- */
+.page-generic span {
+    color: inherit;
+}
+.page-generic > .text-center > span {
+    color: var(--ms-text) !important;
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes ms-fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Theme switch animation =========================================
+   Path principal: View Transitions API (Chrome 111+, Safari 18+, FF 132+).
+   Hace un reveal circular del nuevo tema desde el click point del botón.
+   ==================================================================== */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    z-index: 2;
+    clip-path: circle(0 at var(--ms-reveal-x, 50%) var(--ms-reveal-y, 50%));
+    animation: ms-theme-reveal .55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes ms-theme-reveal {
+    to {
+        clip-path: circle(var(--ms-reveal-radius, 150vmax) at var(--ms-reveal-x, 50%) var(--ms-reveal-y, 50%));
+    }
+}
+
+/* Fallback: navegadores sin View Transitions tienen un fade global de colores */
+html.ms-switching,
+html.ms-switching *,
+html.ms-switching *::before,
+html.ms-switching *::after {
+    transition: background-color .3s ease,
+                color .3s ease,
+                border-color .3s ease,
+                box-shadow .3s ease,
+                fill .3s ease,
+                stroke .3s ease !important;
+}
+
+/* Click feedback en el FAB */
+.ms-fab:active {
+    transform: scale(0.92);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ms-banner,
+    .ms-year-card,
+    .ms-stat-card,
+    .ms-progress-card,
+    .ms-progress-fill,
+    .ms-fab,
+    .ms-status-cursando::before,
+    .ms-year-card-best::after {
+        animation: none !important;
+        transition: none !important;
+    }
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none !important;
+    }
+}
+
+/* ---------- Encuesta ---------- */
+
+/* Espacio entre el card del form y el footer para que no queden pegados */
+body.ms-page-encuesta .page-generic {
+    margin-bottom: 32px !important;
+}
+
+/* Header del título: simple, sin gradiente ni sombra.
+   El JS detecta el elemento con bg computado oscuro y le pone esta clase
+   para anular el azul-marino original. */
+body.ms-page-encuesta .ms-encuesta-header {
+    background: transparent !important;
+    color: var(--ms-text) !important;
+    padding: 8px 0 16px !important;
+    margin: 0 0 16px !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    box-shadow: none !important;
+}
+
+/* Descendientes: bg transparente y heredan el color base */
+body.ms-page-encuesta .ms-encuesta-header *,
+body.ms-page-encuesta .ms-encuesta-header *::before,
+body.ms-page-encuesta .ms-encuesta-header *::after {
+    background: transparent !important;
+    color: var(--ms-text) !important;
+}
+
+/* Tipografía: títulos en accent (lo único con color, para que destaque) */
+body.ms-page-encuesta .ms-encuesta-header h1,
+body.ms-page-encuesta .ms-encuesta-header h2,
+body.ms-page-encuesta .ms-encuesta-header h3 {
+    color: var(--ms-accent) !important;
+    margin: 0 0 8px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+}
+
+body.ms-page-encuesta .ms-encuesta-header h1 { font-size: 24px; }
+body.ms-page-encuesta .ms-encuesta-header h2 { font-size: 20px; }
+body.ms-page-encuesta .ms-encuesta-header h3 { font-size: 17px; }
+
+body.ms-page-encuesta .ms-encuesta-header p,
+body.ms-page-encuesta .ms-encuesta-header span,
+body.ms-page-encuesta .ms-encuesta-header div {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ms-text-secondary) !important;
+}
+
+/* Inputs y selects de la encuesta: rounded + sombra + cursor */
+body.ms-page-encuesta .ms-encuesta-field,
+body.ms-page-encuesta select.ms-encuesta-field {
+    border-radius: var(--ms-radius-sm) !important;
+    border: 1px solid var(--ms-border-strong) !important;
+    background-color: var(--ms-card-bg) !important;
+    color: var(--ms-text) !important;
+    padding: 8px 12px !important;
+    box-shadow: var(--ms-shadow-sm);
+    transition: border-color .15s ease, box-shadow .2s ease, transform .15s ease;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+body.ms-page-encuesta select.ms-encuesta-field {
+    cursor: pointer;
+    padding-right: 28px !important;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+body.ms-page-encuesta .ms-encuesta-field:hover {
+    border-color: var(--ms-accent) !important;
+}
+
+body.ms-page-encuesta .ms-encuesta-field:focus {
+    outline: none !important;
+    border-color: var(--ms-accent) !important;
+    box-shadow: 0 0 0 3px var(--ms-accent-soft), var(--ms-shadow-sm);
+}
+
+html.ms-dark body.ms-page-encuesta .ms-encuesta-field {
+    background-color: var(--ms-card-bg-elev) !important;
+    border-color: var(--ms-border-strong) !important;
+}
+
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+}
+
+html.ms-dark body.ms-page-encuesta .ms-encuesta-field:focus {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+/* Options del select.
+   Nota: los <option> nativos solo permiten estilos limitados (bg, color, padding,
+   font). El popup lo dibuja el OS, así que el `cursor` y bordes no siempre se
+   respetan — esto es lo máximo realista sin reemplazar el <select> por un
+   componente custom. */
+body.ms-page-encuesta select.ms-encuesta-field option {
+    background-color: var(--ms-card-bg);
+    color: var(--ms-text);
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+body.ms-page-encuesta select.ms-encuesta-field option:hover,
+body.ms-page-encuesta select.ms-encuesta-field option:focus,
+body.ms-page-encuesta select.ms-encuesta-field option:checked {
+    background: linear-gradient(0deg, var(--ms-accent-soft), var(--ms-accent-soft)),
+                var(--ms-card-bg);
+    color: var(--ms-accent) !important;
+    font-weight: 600;
+}
+
+body.ms-page-encuesta select.ms-encuesta-field option[disabled],
+body.ms-page-encuesta select.ms-encuesta-field option[value=""] {
+    color: var(--ms-text-muted);
+    font-style: italic;
+}
+
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option {
+    background-color: var(--ms-card-bg-elev);
+    color: var(--ms-text);
+}
+
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option:hover,
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option:focus,
+html.ms-dark body.ms-page-encuesta select.ms-encuesta-field option:checked {
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent-hover) !important;
+}
+
+/* Divisor limpio que reemplaza las filas de guiones del template original.
+   El JS detecta tr con texto que sea solo guiones y vacía sus celdas.
+   Con border-collapse las borders de td adyacentes se unen en una línea
+   continua que cruza las 3 columnas. */
+body.ms-page-encuesta tr.ms-encuesta-divider td,
+body.ms-page-encuesta tr.ms-encuesta-divider th {
+    padding: 14px 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-top: 1px solid var(--ms-border-strong) !important;
+    height: 0;
+    line-height: 0;
+}
+
+/* Botón de enviar: limpio, accent sólido (sin gradiente).
+   Nota: NO usamos box-shadow de ningún tipo (ni en focus) porque dispara
+   un scrollbar en el form y reflowa el layout — eso hacía que el botón
+   se moviera al hacerle hover. Usamos outline para el focus (no afecta
+   layout). También forzamos transform:none para matar cualquier
+   translateY heredado de .btn-primary del template original. */
+body.ms-page-encuesta .ms-encuesta-submit {
+    display: inline-block !important;
+    float: none !important;
+    background: var(--ms-accent) !important;
+    background-image: none !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 12px 28px !important;
+    border-radius: var(--ms-radius-sm) !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    cursor: pointer;
+    transition: background-color .15s ease !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+    height: auto !important;
+    width: auto !important;
+    min-width: 140px;
+    margin-top: 16px !important;
+    outline: none;
+}
+
+body.ms-page-encuesta .ms-encuesta-submit:hover {
+    background: var(--ms-accent-hover) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+body.ms-page-encuesta .ms-encuesta-submit:active {
+    background: var(--ms-accent-hover) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+body.ms-page-encuesta .ms-encuesta-submit:focus {
+    outline: none;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Outline solo en navegación por teclado, no después de click con mouse */
+body.ms-page-encuesta .ms-encuesta-submit:focus-visible {
+    outline: 2px solid var(--ms-accent);
+    outline-offset: 2px;
+}
+
+/* ---------- Custom Select (encuesta) ----------
+   El <select> original queda hidden y conserva la lógica del form.
+   Esta UI es solo visual + sincroniza el value mediante eventos. */
+body.ms-page-encuesta .ms-select {
+    position: relative;
+    display: inline-block;
+    /* Ancho fijo: el trigger no cambia de tamaño según la opción seleccionada.
+       180px es suficiente para opciones tipo "Muy Bueno", "Sobresaliente". */
+    width: 180px;
+    max-width: 100%;
+    font-family: inherit;
+}
+
+body.ms-page-encuesta .ms-select-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    background: var(--ms-card-bg) !important;
+    color: var(--ms-text) !important;
+    border: 1px solid var(--ms-border-strong);
+    border-radius: var(--ms-radius-sm);
+    box-shadow: var(--ms-shadow-sm);
+    font-family: var(--ms-font) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 1.3 !important;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body.ms-page-encuesta .ms-select-trigger:hover {
+    border-color: var(--ms-accent);
+}
+
+body.ms-page-encuesta .ms-select.is-open .ms-select-trigger,
+body.ms-page-encuesta .ms-select-trigger:focus-visible {
+    outline: none;
+    border-color: var(--ms-accent);
+    box-shadow: 0 0 0 3px var(--ms-accent-soft), var(--ms-shadow-sm);
+}
+
+body.ms-page-encuesta .ms-select-value {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+    /* Forzamos un look "normal" para evitar que estilos del site
+       (color accent, weight bold, tamaño aumentado) se filtren */
+    color: var(--ms-text) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    font-style: normal !important;
+    font-family: inherit !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+body.ms-page-encuesta .ms-select-value.is-placeholder {
+    color: var(--ms-text-muted) !important;
+    font-style: italic !important;
+}
+
+body.ms-page-encuesta .ms-select-chevron {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ms-text-muted);
+    transition: transform .2s ease, color .15s ease;
+    flex-shrink: 0;
+}
+
+body.ms-page-encuesta .ms-select.is-open .ms-select-chevron {
+    transform: rotate(180deg);
+    color: var(--ms-accent);
+}
+
+body.ms-page-encuesta .ms-select-panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 100;
+    min-width: 100%;
+    width: max-content;
+    max-width: 320px;
+    background: var(--ms-card-bg);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius-sm);
+    box-shadow: var(--ms-shadow-lg);
+    padding: 4px;
+    max-height: 260px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transform-origin: top left;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+}
+
+body.ms-page-encuesta .ms-select.is-open .ms-select-panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+body.ms-page-encuesta .ms-select-option {
+    padding: 9px 12px;
+    border-radius: var(--ms-radius-sm);
+    font-size: 14px;
+    color: var(--ms-text);
+    cursor: pointer;
+    transition: background-color .12s ease, color .12s ease;
+    user-select: none;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+body.ms-page-encuesta .ms-select-option:hover {
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent);
+}
+
+body.ms-page-encuesta .ms-select-option.is-selected {
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent);
+    font-weight: 600;
+}
+
+/* Highlight de keyboard navigation (ArrowUp/Down).
+   Más fuerte que :hover para que el focus sea evidente al navegar con teclado. */
+body.ms-page-encuesta .ms-select-option.is-highlighted {
+    background: var(--ms-accent-soft);
+    color: var(--ms-accent);
+    box-shadow: inset 2px 0 0 var(--ms-accent);
+}
+
+/* Visually-hidden técnico: el <select> nativo queda fuera del flow visual
+   pero accesible para screen readers (a diferencia de display:none).
+   Form submission sigue funcionando porque se sincroniza con la UI custom. */
+.ms-select-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+body.ms-page-encuesta .ms-select-option.is-placeholder {
+    color: var(--ms-text-muted);
+    font-style: italic;
+}
+
+body.ms-page-encuesta .ms-select-option.is-disabled {
+    color: var(--ms-text-muted);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+body.ms-page-encuesta .ms-select-option.is-disabled:hover {
+    background: transparent;
+    color: var(--ms-text-muted);
+}
+
+/* Scrollbar fino dentro del panel */
+body.ms-page-encuesta .ms-select-panel::-webkit-scrollbar {
+    width: 6px;
+}
+body.ms-page-encuesta .ms-select-panel::-webkit-scrollbar-thumb {
+    background: var(--ms-border-strong);
+    border-radius: 3px;
+}
+
+/* Dark mode */
+html.ms-dark body.ms-page-encuesta .ms-select-trigger {
+    background: var(--ms-card-bg-elev);
+    border-color: var(--ms-border-strong);
+}
+
+html.ms-dark body.ms-page-encuesta .ms-select-panel {
+    background: var(--ms-card-bg-elev);
+    border-color: var(--ms-border-strong);
+}
+
+html.ms-dark body.ms-page-encuesta .ms-select.is-open .ms-select-trigger {
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18), var(--ms-shadow-sm);
+}

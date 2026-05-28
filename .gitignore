@@ -1,0 +1,15 @@
+# Manifest activo para carga descomprimida local.
+# Se genera copiando manifest.chromium.json o manifest.firefox.json
+# según el navegador. NUNCA debería commitearse.
+manifest.json
+
+# Macros / SO
+.DS_Store
+
+# Archivos de muestra de DOM para desarrollo (HTML/CSS scrapeados localmente).
+dev-samples/
+
+# Configs de editor (cada uno con la suya)
+.vscode/
+.idea/
+
