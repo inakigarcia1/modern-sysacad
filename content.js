@@ -5,6 +5,47 @@ const isErrorPage = document.querySelector('.textoError') !== null;
 const isRoot = path === '/' || path.endsWith('default.asp');
 const isLogin = href.includes('loginalumno.asp') || isRoot || (isMenuAlumno && isErrorPage);
 
+// Mapa inmutable de códigos regionales a nombres
+const regionalMap = Object.freeze({
+    fra: 'Avellaneda',
+    frba: 'Bahía Blanca',
+    frb: 'Buenos Aires',
+    frcon: 'Concordia',
+    frc: 'Córdoba',
+    frcu: 'Cuyo',
+    frgp: 'General Pacheco',
+    frh: 'Haedo',
+    frl: 'La Rioja',
+    frlp: 'La Plata',
+    frm: 'Mendoza',
+    frn: 'Neuquén',
+    frp: 'Paraná',
+    frr: 'Resistencia',
+    frre: 'Reconquista',
+    frro: 'Rosario',
+    frsa: 'Salta',
+    frsan: 'San Nicolás',
+    frs: 'Santa Fe',
+    frsc: 'San Francisco',
+    frt: 'Tucumán',
+    frvm: 'Villa María',
+});
+
+/**
+ * Obtiene el nombre de la regional a partir del hostname.
+ * @param {string} [hostname=window.location.hostname] - Hostname a analizar.
+ * @returns {string} Nombre de la regional o el código en mayúsculas si no está en el mapa.
+ */
+const getRegionalName = (hostname = window.location.hostname) => {
+    const match = hostname.toLowerCase().match(/fr[a-z]+/);
+    if (match && match[0]) {
+        return regionalMap[match[0]] || match[0].toUpperCase();
+    }
+    return '';
+};
+
+const regionalName = getRegionalName();
+
 if (isMenuAlumno && !isErrorPage) {
     document.body.innerHTML = '';
 
@@ -30,7 +71,7 @@ if (isMenuAlumno && !isErrorPage) {
             <img src="${logoUrl}" alt="UTN Logo" style="width: 90px; height: 90px; object-fit: contain;">
             <div style="text-align: left; line-height: 1.15; font-family: var(--font-family); color: var(--text-primary);">
                 <div style="font-size: 28px; font-weight: 900; letter-spacing: -0.02em;">Universidad Tecnológica Nacional</div>
-                <div style="font-size: 28px; font-weight: 900; letter-spacing: -0.02em;">Facultad Regional Tucumán</div>
+                <div style="font-size: 28px; font-weight: 900; letter-spacing: -0.02em;">Facultad Regional ${regionalName}</div>
             </div>
         </div>
         <div style="text-align: center; line-height: 1.4; font-family: var(--font-family); color: var(--text-secondary);">
@@ -82,7 +123,7 @@ if (isMenuAlumno && !isErrorPage) {
                 <div style="position: relative; display: inline-block; text-align: left; line-height: 1.2; font-family: var(--font-family); font-weight: 800; color: var(--text-primary); white-space: nowrap;">
                     <img src="${logoUrl}" alt="UTN Logo" style="position: absolute; right: 100%; margin-right: 15px; top: 50%; transform: translateY(-50%); width: 65px; height: 65px; object-fit: contain;">
                     <div>Universidad Tecnológica Nacional</div>
-                    <div>Facultad Regional Tucumán</div>
+                    <div>Facultad Regional ${regionalName}</div>
                 </div>
             `;
 
