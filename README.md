@@ -17,8 +17,9 @@ Un Sysacad moderno, limpio y con modo oscuro.
 * **FRRe** (Resistencia) — `sysacadweb.frre.utn.edu.ar` *(adaptación por Tomás Kobluk, Gonzalo Fidanza y Lorenzo Arduino)*
 * **FRA** (Avellaneda) - `servicios.fra.utn.edu.ar` *(adaptación por Ignacio Natanael Núñez y Facundo Falcone)*
 * **FRGP** (General Pacheco) - `sysacadweb.frgp.utn.edu.ar` *(adaptación por Facundo Falcone)*
+* **FRRO** (Rosario) - `alumnos.frro.utn.edu.ar` *(adaptación por Martín Ratti y Agustín Santinelli)*
 
-Cada regional usa sus propios archivos (`content.js`/`style.css` para FRT, FRA, FRGP y `frre.js`/`frre.css` para FRRe) y el manifest los inyecta sólo en el dominio correspondiente.
+Cada regional usa sus propios archivos (`content.js`/`style.css` para FRT, FRA, FRGP, FRRO y `frre.js`/`frre.css` para FRRe) y el manifest los inyecta sólo en el dominio correspondiente.
 
 ---
 
@@ -29,7 +30,7 @@ Si querés probar los últimos cambios o colaborar con el código, podés instal
 ### 1. Preparación del Manifiesto
 Como el repositorio soporta múltiples navegadores, lo primero que tenés que hacer tras clonar el proyecto es renombrar el archivo correspondiente a tu navegador:
 
-* **Si usás Chrome / Edge / Brave:** Renombrá `manifest.chrome.json` a `manifest.json`.
+* **Si usás Chrome / Edge / Brave:** Renombrá `manifest.chromium.json` a `manifest.json`.
 * **Si usás Firefox:** Renombrá `manifest.firefox.json` a `manifest.json`.
 
 ---
