@@ -46,6 +46,58 @@ const getRegionalName = (hostname = window.location.hostname) => {
 
 const regionalName = getRegionalName();
 
+/**
+ * Obtiene el código de regional (ej: 'frro', 'frt') a partir del hostname.
+ * @param {string} [hostname=window.location.hostname] - Hostname a analizar.
+ * @returns {string} Código en minúsculas o '' si no matchea.
+ */
+const getRegionalCode = (hostname = window.location.hostname) => {
+    const match = hostname.toLowerCase().match(/fr[a-z]+/);
+    return (match && match[0]) ? match[0] : '';
+};
+
+const regionalCode = getRegionalCode();
+const isFRRO = regionalCode === 'frro';
+
+// Links extra de Rosario (no están en el sidebar base): se leen del menú y se cachean para el resto de páginas
+const EXTRA_LINKS_STORAGE_KEY = `sysacad_extra_links_${regionalCode}`;
+let extraSidebarLinks = [];
+
+if (isFRRO && isMenuAlumno && !isErrorPage) {
+    // Normaliza texto: minúsculas y sin diacríticos
+    const normalizeText = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+    // Texto del link en el menú -> ícono en el sidebar
+    const extraLinkConfig = [
+        { match: 'calendario', svg: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="menu-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>` },
+        { match: 'tramites', svg: `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="menu-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>` },
+    ];
+
+    document.querySelectorAll('ul.textoTabla li a').forEach(a => {
+        const text = a.textContent.trim();
+        const normalized = normalizeText(text);
+        const cfg = extraLinkConfig.find(c => normalized.includes(c.match));
+        if (cfg && a.href) {
+            extraSidebarLinks.push({
+                text,
+                href: a.href,
+                svg: cfg.svg,
+                external: a.target === '_blank',
+            });
+        }
+    });
+
+    try {
+        localStorage.setItem(EXTRA_LINKS_STORAGE_KEY, JSON.stringify(extraSidebarLinks));
+    } catch (e) { /* ignorar */ }
+} else if (isFRRO) {
+    // En páginas internas leemos los links cacheados desde el menú
+    try {
+        const cached = JSON.parse(localStorage.getItem(EXTRA_LINKS_STORAGE_KEY) || '[]');
+        if (Array.isArray(cached)) extraSidebarLinks = cached;
+    } catch (e) { extraSidebarLinks = []; }
+}
+
 if (isMenuAlumno && !isErrorPage) {
     document.body.innerHTML = '';
 
@@ -221,10 +273,12 @@ if (!isLogin) {
     sidebar.id = 'modern-sidebar';
 
     let linksHtml = '';
-    sidebarLinks.forEach(link => {
+    const allSidebarLinks = [...extraSidebarLinks, ...sidebarLinks];
+    allSidebarLinks.forEach(link => {
+        const targetAttr = link.external ? ' target="_blank" rel="noopener"' : '';
         linksHtml += `
             <li>
-                <a href="${link.href}">
+                <a href="${link.href}"${targetAttr}>
                     ${link.svg}
                     <span>${link.text}</span>
                 </a>
