@@ -791,7 +791,7 @@ p.textoError,
   display: none !important;
 }
 
-/* Wrappers propios de Rosario */
+/* Wrappers propios de Rosario: columna centrada como el body */
 #page-container,
 #page-container > .wrapper {
   background: transparent !important;
@@ -802,16 +802,21 @@ p.textoError,
   padding: 0 !important;
   box-shadow: none !important;
   border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
 }
 
 #page-container pre {
   display: none !important;
 }
 
-/* Aviso del pie */
+/* Aviso del pie (Rosario lo posiciona absolute) */
 #page-container > .footer.aviso {
+  position: static !important;
   font-family: var(--font-family) !important;
   color: var(--text-secondary) !important;
+  background: transparent !important;
   text-align: center !important;
   font-size: 0.85rem !important;
   margin: 32px auto 0 auto !important;
