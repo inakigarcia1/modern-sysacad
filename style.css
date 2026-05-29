@@ -857,14 +857,21 @@ p.textoError,
   letter-spacing: -0.02em !important;
 }
 
-/* Tarjeta de login (Rosario usa width="260") */
+/* Tarjeta de login (Rosario usa width="260", la ensanchamos) */
+#page-container form[name="login"] {
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
 #page-container table[width="260"] {
   background-color: var(--card-bg) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: 16px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05) !important;
-  padding: 32px !important;
+  padding: 40px !important;
   display: block !important;
+  width: 100% !important;
+  max-width: 420px !important;
   margin: 20px auto 0 auto !important;
   box-sizing: border-box !important;
 }
@@ -880,4 +887,13 @@ p.textoError,
 
 #page-container table[width="260"] table {
   max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Cronograma y avisos del login (tablas width="800") centradas */
+#page-container table[width="800"] {
+  width: 100% !important;
+  max-width: 760px !important;
+  margin: 16px auto !important;
+  background: transparent !important;
 }
