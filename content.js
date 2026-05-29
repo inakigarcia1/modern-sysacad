@@ -273,7 +273,9 @@ if (!isLogin) {
     sidebar.id = 'modern-sidebar';
 
     let linksHtml = '';
-    const allSidebarLinks = [...extraSidebarLinks, ...sidebarLinks];
+    // En Rosario el menú principal ya es la navegación, así que "Inicio" sobra
+    const baseLinks = isFRRO ? sidebarLinks.filter(l => l.text !== 'Inicio') : sidebarLinks;
+    const allSidebarLinks = [...extraSidebarLinks, ...baseLinks];
     allSidebarLinks.forEach(link => {
         const targetAttr = link.external ? ' target="_blank" rel="noopener"' : '';
         linksHtml += `
