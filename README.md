@@ -28,6 +28,7 @@ https://addons.mozilla.org/es-AR/firefox/addon/modernsysacad/
 * **FRRe** (Resistencia) — `sysacadweb.frre.utn.edu.ar` *(adaptación por Tomás Kobluk, Gonzalo Fidanza y Lorenzo Arduino)*
 * **FRA** (Avellaneda) - `servicios.fra.utn.edu.ar` *(adaptación por Ignacio Natanael Núñez y Facundo Falcone)*
 * **FRGP** (General Pacheco) - `sysacadweb.frgp.utn.edu.ar` *(adaptación por Facundo Falcone)*
+* **FRRO** (Rosario) - `alumnos.frro.utn.edu.ar` *(adaptación por Martín Ratti y Agustín Santinelli)*
 
 Cada regional puede usar los archivos comunes (`/common`) y/o propios (`/miRegional`), y el manifest los inyecta sólo en el dominio correspondiente.
 

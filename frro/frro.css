@@ -1,0 +1,899 @@
+:root {
+  --bg-color: #f8fafc;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --border-color: #e2e8f0;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --alert-bg: #fef2f2;
+  --alert-border: #f87171;
+  --alert-text: #991b1b;
+  --alert-header-bg: #fee2e2;
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --container-max-width: 1200px;
+  /* Cambiar para ensanchar o achicar cualquier página */
+}
+
+.dark {
+  --bg-color: #0f172a;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --primary-color: #3b82f6;
+  --primary-hover: #60a5fa;
+  --border-color: #334155;
+  --card-bg: #1e293b;
+  --input-bg: #0f172a;
+  --input-border: #475569;
+  --alert-bg: #450a0a;
+  --alert-border: #991b1b;
+  --alert-text: #fecaca;
+  --alert-header-bg: #7f1d1d;
+}
+
+body {
+  background-color: var(--bg-color) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+  margin: 0 !important;
+  padding: 40px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  box-sizing: border-box !important;
+  transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+body.sidebar-open {
+  padding-left: 340px !important;
+}
+
+table {
+  background-color: transparent !important;
+  border: none !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  max-width: var(--container-max-width) !important;
+}
+
+td,
+th {
+  border: none !important;
+  background-color: transparent !important;
+  font-family: var(--font-family) !important;
+}
+
+pre {
+  display: none !important;
+}
+
+h2.titulo,
+p.titulo {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  margin: 0 0 10px 0 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em !important;
+}
+
+
+
+p.titulo {
+  font-size: 1.1rem !important;
+  color: var(--text-secondary) !important;
+  font-weight: 500 !important;
+  margin-bottom: 40px !important;
+}
+
+table[width="400"],
+table[width="320"] {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05) !important;
+  padding: 32px !important;
+  display: block !important;
+  margin-top: 20px !important;
+  box-sizing: border-box !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+table[width="400"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
+}
+
+table[width="400"]>tbody,
+table[width="320"]>tbody,
+table[width="400"]>tbody>tr,
+table[width="320"]>tbody>tr,
+table[width="400"]>tbody>tr>td,
+table[width="320"]>tbody>tr>td {
+  display: block !important;
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+table[width="400"] table {
+  max-width: 100% !important;
+}
+
+table[width="400"] td[bgcolor="#0000FF"],
+table[width="400"] td[bgcolor="#FFFFFF"] {
+  background-color: transparent !important;
+}
+
+.tituloTabla {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  border-bottom: 2px solid var(--border-color) !important;
+  padding-bottom: 20px !important;
+  margin-bottom: 24px !important;
+  display: block !important;
+  letter-spacing: -0.02em !important;
+}
+
+form[name="login"] {
+  width: 100% !important;
+  max-width: 320px !important;
+}
+
+form[name="login"] table {
+  max-width: 100% !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+}
+
+form[name="login"] td {
+  text-align: left !important;
+  margin-bottom: 8px !important;
+}
+
+form[name="login"] td[align="right"] {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 8px !important;
+  padding-top: 12px !important;
+  text-align: left !important;
+}
+
+/* =========================================================
+   FORMULARIO DE CAMBIO DE CONTRASEÑA
+   ========================================================= */
+form[name="cambioPassword"] table table table tbody,
+form[name="cambioPassword"] table table table tr,
+form[name="cambioPassword"] table table table td {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+form[name="cambioPassword"] table table table td {
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+form[name="cambioPassword"] table table table td.textoTabla:not([colspan="2"]) {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 8px !important;
+  margin-top: 24px !important;
+}
+
+form[name="cambioPassword"] table table table td[colspan="2"] b i {
+  font-style: normal !important;
+  font-weight: 500 !important;
+  font-size: 0.95rem !important;
+  color: var(--text-secondary) !important;
+}
+
+
+input[type="text"],
+input[type="password"] {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  font-size: 1rem !important;
+  font-family: var(--font-family) !important;
+  color: var(--text-primary) !important;
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 10px !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+  outline: none !important;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+input[type="submit"],
+.botonlogin {
+  width: 100% !important;
+  padding: 14px 24px !important;
+  margin-top: 28px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  font-family: var(--font-family) !important;
+  color: #ffffff !important;
+  background-color: var(--primary-color) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1) !important;
+  letter-spacing: 0.025em !important;
+}
+
+input[type="submit"]:hover,
+.botonlogin:hover {
+  background-color: var(--primary-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -2px rgba(37, 99, 235, 0.15) !important;
+}
+
+input[type="submit"]:active,
+.botonlogin:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px -1px rgba(37, 99, 235, 0.2) !important;
+}
+
+.textoTabla,
+ul.textoTabla {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+  font-family: var(--font-family) !important;
+}
+
+ul.textoTabla li {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+ul.textoTabla li a {
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px 20px !important;
+  background-color: var(--bg-color) !important;
+  color: var(--text-primary) !important;
+  text-decoration: none !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  font-weight: 600 !important;
+  font-family: var(--font-family) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+ul.textoTabla li a::after {
+  content: "→" !important;
+  position: absolute !important;
+  right: 20px !important;
+  opacity: 0 !important;
+  transform: translateX(-10px) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  color: var(--primary-color) !important;
+}
+
+ul.textoTabla li a:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -2px rgba(37, 99, 235, 0.05) !important;
+  transform: translateY(-2px) !important;
+  padding-left: 24px !important;
+}
+
+ul.textoTabla li a:hover::after {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+}
+
+center {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+center>div[style*="red"],
+div[style*="background-color : #FFF"] {
+  background-color: var(--alert-bg) !important;
+  border: 1px solid var(--alert-border) !important;
+  border-radius: 16px !important;
+  width: 100% !important;
+  max-width: 600px !important;
+  margin-top: 40px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.1), 0 4px 6px -4px rgba(239, 68, 68, 0.1) !important;
+  text-align: left !important;
+}
+
+center>div>div[style*="background-color : #F95"],
+div[style*="border-bottom:1px solid red"] {
+  background-color: var(--alert-header-bg) !important;
+  color: var(--alert-text) !important;
+  border-bottom: 1px solid var(--alert-border) !important;
+  padding: 16px 24px !important;
+  font-family: var(--font-family) !important;
+  font-size: 0.875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+center>div>div[style*="padding:10px"] {
+  padding: 24px !important;
+  color: var(--text-secondary) !important;
+}
+
+center>div>div p {
+  color: var(--text-primary) !important;
+  font-family: var(--font-family) !important;
+  margin-bottom: 8px !important;
+  line-height: 1.6 !important;
+}
+
+blink {
+  visibility: visible !important;
+  animation: none !important;
+}
+
+.menu-icon {
+  margin-right: 14px !important;
+  color: var(--primary-color) !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+ul.textoTabla li a:hover .menu-icon {
+  transform: scale(1.1) !important;
+}
+
+table[border="1"] {
+  display: table !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+  margin-top: 24px !important;
+  margin-bottom: 24px !important;
+}
+
+table[border="1"]>tbody {
+  display: table-row-group !important;
+}
+
+table[border="1"] tr {
+  display: table-row !important;
+}
+
+table[border="1"] th {
+  display: table-cell !important;
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 16px !important;
+  text-align: center !important;
+  border: none !important;
+}
+
+table[border="1"] td {
+  display: table-cell !important;
+  padding: 16px !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+  font-size: 0.95rem !important;
+  transition: background-color 0.2s ease !important;
+  text-align: center !important;
+}
+
+table[border="1"] tr:last-child td {
+  border-bottom: none !important;
+}
+
+table[border="1"] tr.textoTabla:hover td {
+  background-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.promedio-banner {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+  color: white !important;
+  padding: 24px !important;
+  border-radius: 16px !important;
+  text-align: center !important;
+  margin-bottom: 24px !important;
+  margin-top: 24px !important;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3) !important;
+  font-family: var(--font-family) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.promedio-title {
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  opacity: 0.9 !important;
+  margin-bottom: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.promedio-value {
+  font-size: 3.5rem !important;
+  font-weight: 800 !important;
+  margin-bottom: 8px !important;
+  line-height: 1 !important;
+}
+
+.promedio-subtitle {
+  font-size: 0.95rem !important;
+  opacity: 0.9 !important;
+  font-weight: 500 !important;
+}
+
+/* Doble Banner de Promedios */
+.promedios-container {
+  display: flex !important;
+  gap: 20px !important;
+  width: 100% !important;
+  max-width: 900px !important;
+  margin: 24px auto !important;
+}
+
+.promedios-container .promedio-banner {
+  margin: 0 !important;
+  flex: 1 !important;
+}
+
+/* Botón Volver al Menú Principal (OBSOLETOO - Será eliminado vía JS) */
+a[href*="menuAlumno.asp"] {
+  display: none !important;
+}
+
+/* =========================================================
+   SIDEBAR & NAVIGATION
+   ========================================================= */
+
+/* Contenedor Sidebar */
+#modern-sidebar {
+  position: fixed !important;
+  top: 0 !important;
+  left: -320px !important;
+  /* Escondido a la izquierda */
+  width: 320px !important;
+  height: 100vh !important;
+  background-color: var(--card-bg) !important;
+  z-index: 9999 !important;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1) !important;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  overflow-y: auto !important;
+}
+
+#modern-sidebar.open {
+  left: 0 !important;
+}
+
+/* Header de la Sidebar */
+.sidebar-header {
+  padding: 24px !important;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+  color: white !important;
+  text-align: center !important;
+  font-weight: 800 !important;
+  font-size: 1.5rem !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 10px !important;
+}
+
+/* Elementos del Menu en Sidebar */
+.sidebar-menu {
+  list-style: none !important;
+  padding: 0 16px !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.sidebar-menu li {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.sidebar-menu a {
+  display: flex !important;
+  align-items: center !important;
+  padding: 16px 20px !important;
+  color: var(--text-secondary) !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar-menu a:hover {
+  background-color: var(--alert-bg) !important;
+  /* Soft tint */
+  color: var(--primary-color) !important;
+  transform: translateX(4px) !important;
+}
+
+.sidebar-menu a svg {
+  margin-right: 16px !important;
+  flex-shrink: 0 !important;
+  color: var(--primary-color) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.sidebar-menu a:hover svg {
+  transform: scale(1.1) !important;
+}
+
+/* Botón Hamburguesa */
+#hamburger-btn {
+  position: fixed !important;
+  top: 24px !important;
+  left: 24px !important;
+  width: 50px !important;
+  height: 50px !important;
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+body.sidebar-open #hamburger-btn {
+  left: 344px !important;
+}
+
+#hamburger-btn:hover {
+  transform: scale(1.05) !important;
+  background-color: var(--primary-hover) !important;
+}
+
+#hamburger-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Botón de Tema (Dark/Light Mode) */
+#theme-btn {
+  position: fixed !important;
+  top: 84px !important;
+  /* 24px + 50px (btn height) + 10px margin */
+  left: 24px !important;
+  width: 50px !important;
+  height: 50px !important;
+  background-color: var(--card-bg) !important;
+  color: var(--primary-color) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+body.sidebar-open #theme-btn {
+  left: 344px !important;
+}
+
+#theme-btn:hover {
+  transform: scale(1.05) !important;
+  background-color: var(--border-color) !important;
+}
+
+#theme-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Botón de Cafecito */
+#cafecito-btn {
+  position: fixed !important;
+  top: 144px !important;
+  /* 84px + 50px (btn height) + 10px margin */
+  left: 24px !important;
+  width: 50px !important;
+  height: 50px !important;
+  background-color: var(--card-bg) !important;
+  color: var(--primary-color) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+body.sidebar-open #cafecito-btn {
+  left: 344px !important;
+}
+
+#cafecito-btn:hover {
+  transform: scale(1.05) !important;
+  background-color: var(--border-color) !important;
+}
+
+#cafecito-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* Botón de GitHub */
+#github-btn {
+  position: fixed !important;
+  top: 204px !important;
+  /* 144px + 50px (btn height) + 10px margin */
+  left: 24px !important;
+  width: 50px !important;
+  height: 50px !important;
+  background-color: var(--card-bg) !important;
+  color: var(--primary-color) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 10000 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+body.sidebar-open #github-btn {
+  left: 344px !important;
+}
+
+#github-btn:hover {
+  transform: scale(1.05) !important;
+  background-color: var(--border-color) !important;
+}
+
+#github-btn svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+/* =========================================================
+   BOTONES MODERNOS GENÉRICOS
+   ========================================================= */
+
+.btn-modern {
+  display: flex !important;
+  width: max-content !important;
+  min-width: 300px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px 24px !important;
+  background-color: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  text-decoration: none !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--border-color) !important;
+  font-weight: 600 !important;
+  font-family: var(--font-family) !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+  margin: 12px auto !important;
+}
+
+.btn-modern:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -2px rgba(37, 99, 235, 0.05) !important;
+  transform: translateY(-2px) !important;
+  color: var(--primary-color) !important;
+}
+
+.btn-modern.btn-primary {
+  background-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-modern.btn-primary:hover {
+  background-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+}
+
+.btn-sm {
+  min-width: auto !important;
+  width: max-content !important;
+  padding: 8px 16px !important;
+  font-size: 0.95rem !important;
+  margin: 0 auto !important;
+}
+
+/* =========================================================
+   ERRORES GLOBALES (textoError)
+   ========================================================= */
+
+p.textoError,
+.textoError {
+  font-family: var(--font-family) !important;
+  color: #ef4444 !important;
+  /* Tailwind red-500 */
+  font-weight: 700 !important;
+  text-align: center !important;
+  padding: 12px !important;
+  background-color: var(--alert-bg) !important;
+  border: 1px solid var(--alert-border) !important;
+  border-radius: 8px !important;
+  margin: 16px auto !important;
+  max-width: 600px !important;
+}
+
+/* =========================================================
+   FRRO (Rosario) — selectores acotados a #page-container
+   ========================================================= */
+
+/* Header propio de Rosario (ya dibujamos el nuestro) */
+#page-container > .header {
+  display: none !important;
+}
+
+/* Wrappers propios de Rosario: columna centrada como el body */
+#page-container,
+#page-container > .wrapper {
+  background: transparent !important;
+  background-image: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+#page-container pre {
+  display: none !important;
+}
+
+/* Aviso del pie (Rosario lo posiciona absolute) */
+#page-container > .footer.aviso {
+  position: static !important;
+  font-family: var(--font-family) !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  text-align: center !important;
+  font-size: 0.85rem !important;
+  margin: 32px auto 0 auto !important;
+  max-width: var(--container-max-width) !important;
+}
+
+#page-container > .footer.aviso font[color="red"] {
+  color: #ef4444 !important;
+}
+
+/* Fondos azules heredados de las tablas viejas */
+#page-container td[bgcolor="#0000FF"],
+#page-container td[bgcolor="#FFFFFF"],
+#page-container td[bgcolor="#3161bd"] {
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+/* Contenedor de las páginas de datos */
+#page-container table[width="700"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  max-width: var(--container-max-width) !important;
+  margin: 0 auto !important;
+}
+
+/* Título de página de datos (nombre + fecha) */
+#page-container table[width="700"] td.tituloTabla {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  border: none !important;
+  padding: 0 0 16px 0 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Tarjeta de login (Rosario usa width="260", la ensanchamos) */
+#page-container form[name="login"] {
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
+/* Fondos azules del recuadro de login (Rosario usa width="260") */
+#page-container form[name="login"] td[bgcolor="#0000FF"],
+#page-container form[name="login"] td[bgcolor="#FFFFFF"] {
+  background-color: transparent !important;
+}
+
+#page-container table[width="260"] {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05) !important;
+  padding: 40px !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 420px !important;
+  margin: 20px auto 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+#page-container table[width="260"] > tbody,
+#page-container table[width="260"] > tbody > tr,
+#page-container table[width="260"] > tbody > tr > td {
+  display: block !important;
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#page-container table[width="260"] table {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Cronograma y avisos del login (tablas width="800") centradas */
+#page-container table[width="800"] {
+  width: 100% !important;
+  max-width: 760px !important;
+  margin: 16px auto !important;
+  background: transparent !important;
+}
