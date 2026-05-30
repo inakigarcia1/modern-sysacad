@@ -27,6 +27,17 @@
       "js": [
         "frre/frre.js"
       ]
+    },
+    {
+      "matches": [
+        "https://alumnos.frro.utn.edu.ar/*"
+      ],
+      "css": [
+        "frro/frro.css"
+      ],
+      "js": [
+        "frro/frro.js"
+      ]
     }
   ],
   "web_accessible_resources": [
@@ -38,7 +49,8 @@
         "https://sysacad.frt.utn.edu.ar/*",
         "https://servicios.fra.utn.edu.ar/*",
         "https://sysacadweb.frgp.utn.edu.ar/*",
-        "https://sysacadweb.frre.utn.edu.ar/*"
+        "https://sysacadweb.frre.utn.edu.ar/*",
+        "https://alumnos.frro.utn.edu.ar/*"
       ]
     }
   ],
