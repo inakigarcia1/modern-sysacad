@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "ModernSysacad",
+  "short_name": "ModernSysacad",
+  "version": "1.3",
+  "description": "Moderniza la interfaz del SYSACAD de las distintas Facultades Regionales de UTN.",
+  "icons": {
+    "128": "128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://sysacad.frt.utn.edu.ar/*",
+        "https://servicios.fra.utn.edu.ar/*",
+        "https://sysacadweb.frgp.utn.edu.ar/*"
+      ],
+      "css": [
+        "common/common.css"
+      ],
+      "js": [
+        "common/common.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://sysacadweb.frre.utn.edu.ar/*"
+      ],
+      "css": [
+        "frre/frre.css"
+      ],
+      "js": [
+        "frre/frre.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*"
+      ],
+      "matches": [
+        "https://sysacad.frt.utn.edu.ar/*",
+        "https://servicios.fra.utn.edu.ar/*",
+        "https://sysacadweb.frgp.utn.edu.ar/*",
+        "https://sysacadweb.frre.utn.edu.ar/*"
+      ]
+    }
+  ]
+}
