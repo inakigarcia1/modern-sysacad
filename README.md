@@ -28,7 +28,7 @@ Disponible para carga local en Microsoft Edge usando `manifest.edge.json`.
 ## Regionales soportadas
 
 * **FRT** (Tucumán) — `sysacad.frt.utn.edu.ar` (repositorio original, por Iñaki García)
-* **FRRe** (Resistencia) — `sysacadweb.frre.utn.edu.ar` *(adaptación por Tomás Kobluk, Gonzalo Fidanza y Lorenzo Arduino)*
+* **FRRe** (Resistencia) — `sysacadweb.frre.utn.edu.ar` *(adaptación por Tomás Kobluk, Gonzalo Fidanza, Lorenzo Arduino y Joaquín Brocal)*
 * **FRA** (Avellaneda) - `servicios.fra.utn.edu.ar` *(adaptación por Ignacio Natanael Núñez y Facundo Falcone)*
 * **FRGP** (General Pacheco) - `sysacadweb.frgp.utn.edu.ar` *(adaptación por Facundo Falcone)*
 
