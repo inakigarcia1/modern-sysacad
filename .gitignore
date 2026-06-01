@@ -9,9 +9,6 @@ manifest.json
 # Archivos de muestra de DOM para desarrollo (HTML/CSS scrapeados localmente).
 dev-samples/
 
-# Paquetes generados para publicar en tiendas.
-dist/
-
 # Configs de editor (cada uno con la suya)
 .vscode/
 .idea/

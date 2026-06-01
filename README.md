@@ -85,32 +85,6 @@ Cualquier mejora en los estilos CSS o nuevas funcionalidades en JS son más que 
 5. Hacé el push: `git push origin feature/MejoraVisual`.
 6. Abrí un **Pull Request** directo a la rama `main` de este repo.
 
----
-
-## Cómo publicar en Microsoft Edge Add-ons
-
-Para subir la extensión a Microsoft Edge Add-ons, generá el paquete publicable con:
-
-```powershell
-.\scripts\package-edge.ps1
-```
-
-El script crea un archivo `.zip` en `dist/` con `manifest.edge.json` copiado como `manifest.json`, que es el formato que espera Partner Center.
-
-Después ingresá al dashboard de Microsoft Edge Add-ons, creá una nueva extensión y subí el `.zip` generado:
-
-https://developer.microsoft.com/en-us/microsoft-edge/extensions
-
-Notas sugeridas para la revisión:
-
-> ModernSysacad modifica visualmente la interfaz de SYSACAD en dominios específicos de UTN. No recopila, almacena ni transmite datos personales. La extensión no usa servidores externos, analítica, tracking ni publicidad.
-
-La política de privacidad del proyecto está en `PRIVACY.md`.
-
-También hay una guía con textos sugeridos para la ficha de la tienda en `EDGE_SUBMISSION.md`.
-
----
-
 ## ☕ Apoyá el proyecto
 Este proyecto es 100% gratuito y de código abierto. Si te ahorró un dolor de cabeza (o de ojos), podés invitarme un cafecito para bancar el mantenimiento y las futuras actualizaciones:
 
