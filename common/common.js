@@ -2,51 +2,9 @@ const href = window.location.href.toLowerCase();
 const path = window.location.pathname.toLowerCase();
 const isMenuAlumno = href.includes('menualumno.asp');
 const isErrorPage = document.querySelector('.textoError') !== null;
-const isRoot = path === '/' || path.endsWith('default.asp');
+const isRoot = path === '/' || path.endsWith('/') || path.endsWith('default.asp') || path.endsWith('/alumnos');
 const isLogin = href.includes('loginalumno.asp') || isRoot || (isMenuAlumno && isErrorPage);
 const isAspError = document.body.textContent.includes('Error de Microsoft VBScript') || document.body.textContent.includes('Microsoft VBScript runtime error');
-
-// Mapa inmutable de códigos regionales a nombres
-const regionalMap = Object.freeze({
-    fra: 'Avellaneda',
-    frba: 'Bahía Blanca',
-    frb: 'Buenos Aires',
-    frcon: 'Concordia',
-    frc: 'Córdoba',
-    frcu: 'Cuyo',
-    frgp: 'General Pacheco',
-    frh: 'Haedo',
-    frl: 'La Rioja',
-    frlp: 'La Plata',
-    frm: 'Mendoza',
-    frn: 'Neuquén',
-    frp: 'Paraná',
-    frr: 'Resistencia',
-    frre: 'Reconquista',
-    frro: 'Rosario',
-    frsa: 'Salta',
-    frsan: 'San Nicolás',
-    frs: 'Santa Fe',
-    frsc: 'San Francisco',
-    frt: 'Tucumán',
-    frvm: 'Villa María',
-    frvt: 'Venado Tuerto',
-});
-
-/**
- * Obtiene el nombre de la regional a partir del hostname.
- * @param {string} [hostname=window.location.hostname] - Hostname a analizar.
- * @returns {string} Nombre de la regional o el código en mayúsculas si no está en el mapa.
- */
-const getRegionalName = (hostname = window.location.hostname) => {
-    const match = hostname.toLowerCase().match(/fr[a-z]+/);
-    if (match && match[0]) {
-        return regionalMap[match[0]] || match[0].toUpperCase();
-    }
-    return '';
-};
-
-const regionalName = getRegionalName();
 
 // Mapa inmutable de códigos regionales a nombres
 const regionalMap = Object.freeze({
