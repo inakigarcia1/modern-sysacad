@@ -47,7 +47,7 @@
     // puede sumar una capa PJAX sin tocar los parsers.
 
     const MS_CACHE = {
-        _prefix: 'mscache_v1:',
+        _prefix: 'mscache_v3:',
         /** Devuelve la data cacheada o null si no existe / está vencida. */
         get(key, maxAgeMs) {
             try {
@@ -150,8 +150,61 @@
         return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     }
 
+    // Marcadores de curr\u00edcula que NO forman parte de la identidad de la materia.
+    // Aparecen en una p\u00e1gina y no en otra (ej: el plan la marca "Integradora",
+    // el prerrequisito no), y romp\u00edan el cruce.
+    const SUBJECT_MARKERS = new Set([
+        'integradora', 'integrador', 'electiva', 'electivo', 'elec', 'electivas',
+        'optativa', 'optativo', 'opt', 'anual', 'cuatrimestral'
+    ]);
+
+    // Clave can\u00f3nica para identificar una materia entre p\u00e1ginas (plan, estado,
+    // correlatividades, prerrequisitos). M\u00e1s agresiva que normalizeText: saca
+    // par\u00e9ntesis \u2014"(Ord. 1878)", "(Integradora)", "(Elec.)"\u2014, puntuaci\u00f3n,
+    // marcadores de curr\u00edcula y colapsa espacios. As\u00ed "Administraci\u00f3n de Sistemas
+    // de Informaci\u00f3n (Integradora)", "...Informaci\u00f3n Integradora" y "...Informaci\u00f3n"
+    // son la MISMA materia y no se duplican (una real + un fantasma a la izquierda).
+    function subjectKey(s) {
+        return normalizeText(s)
+            .replace(/\([^)]*\)/g, ' ')
+            .replace(/[^a-z0-9\s]/g, ' ')
+            .split(/\s+/)
+            .filter(t => t && !SUBJECT_MARKERS.has(t))
+            .join(' ')
+            .trim();
+    }
+
+    // Variante insensible al orden de palabras: mismos tokens \u21d2 misma clave.
+    // Resuelve prerrequisitos escritos con las palabras en otro orden.
+    function subjectLooseKey(s) {
+        return subjectKey(s).split(' ').filter(Boolean).sort().join(' ');
+    }
+
+    // \u00bf`a` y `b` son la misma materia salvo un truncado/typo al FINAL de una
+    // palabra larga? Cubre los nombres que SYSACAD corta en una p\u00e1gina
+    // ("...informacio") vs otra ("...informacion"), pero es estricto para no
+    // fusionar materias distintas: exige que todo el string coincida salvo un
+    // sufijo de \u22643 chars que cae DENTRO de la \u00faltima palabra (\u22654 chars). Por eso
+    // "...matematico i" y "...matematico ii" (sufijo corto, palabra "i") NO matchean.
+    function isTruncationOf(a, b) {
+        if (a === b || !a || !b) return false;
+        const [s, l] = a.length <= b.length ? [a, b] : [b, a];
+        if (l.length - s.length > 3 || !l.startsWith(s)) return false;
+        const lastWord = s.slice(s.lastIndexOf(' ') + 1);
+        return lastWord.length >= 4;
+    }
+
     function reducedMotion() {
         return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // Año de una materia desde la celda "Año". Tomamos el primer número que
+    // aparezca, así una electiva escrita como "Elec. 4" o "4 (Elec.)" cae en su
+    // año real en vez de la columna especial. Sin número (ingreso/electiva sin
+    // año) → 0, que se ubica a la izquierda de 1º.
+    function parseYear(text) {
+        const m = String(text || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : 0;
     }
 
     /**
@@ -197,8 +250,8 @@
             if (tds.length <= matIdx) return;
             const name = tds[matIdx].textContent.trim();
             if (!name) return;
-            const year = parseInt((tds[yearIdx] && tds[yearIdx].textContent || '').trim(), 10);
-            rows.push({ year: isNaN(year) ? 0 : year, name });
+            const year = parseYear(tds[yearIdx] && tds[yearIdx].textContent);
+            rows.push({ year, name });
         });
         if (rows.length) {
             MS_CACHE.set('plan', rows);
@@ -231,7 +284,7 @@
             } else if (/^cursa/i.test(estado)) {
                 status = 'cursando';
             }
-            map[normalizeText(name)] = { name, status, nota, estado };
+            map[subjectKey(name)] = { name, status, nota, estado };
         });
         MS_CACHE.set('estado', map);
         return map;
@@ -254,7 +307,7 @@
             if (tds.length <= Math.max(matIdx, corrIdx)) return;
             const name = tds[matIdx].textContent.trim();
             if (!name) return;
-            const year = parseInt((tds[yearIdx] && tds[yearIdx].textContent || '').trim(), 10);
+            const year = parseYear(tds[yearIdx] && tds[yearIdx].textContent);
             // El <br> separa cada requisito incumplido. Lo pasamos a saltos de
             // línea y limpiamos tags residuales para quedarnos con texto plano.
             const lines = tds[corrIdx].innerHTML
@@ -273,7 +326,7 @@
                 if (mm && mm[1]) missing.push({ rel, name: mm[1].trim() });
             }
             list.push({
-                year: isNaN(year) ? 0 : year,
+                year,
                 name,
                 status: missing.length ? 'blocked' : 'available',
                 missing
@@ -1339,6 +1392,27 @@
         pendiente: { label: 'Pendiente',     cls: 'pending' }
     };
 
+    // SYSACAD tiene dos páginas de correlatividad: para CURSAR y para RENDIR.
+    // El grafo aplica a ambas, pero la de cursar es la relevante (la de rendir
+    // rara vez se aplica en la práctica). Detectamos en cuál estamos para
+    // adaptar la redacción ("Podés cursar" vs "Podés rendir", etc.).
+    const CORREL_TERMS = {
+        cursar: { verb: 'cursar', can: 'Podés cursar', habilita: 'Habilita a cursar', title: 'Mapa de correlativas para cursar' },
+        rendir: { verb: 'rendir', can: 'Podés rendir', habilita: 'Habilita a rendir', title: 'Mapa de correlativas para rendir' }
+    };
+
+    // 'cursar' | 'rendir'. Prioriza la URL; si el slug no lo aclara, se apoya en
+    // el texto de la tabla ("Puede Cursar" vs "Puede Rendir"). Default: cursar.
+    function correlMode() {
+        const path = location.pathname.toLowerCase();
+        if (path.includes('rendir')) return 'rendir';
+        if (/cursad|cursar/.test(path)) return 'cursar';
+        const txt = (document.body.textContent || '').toLowerCase();
+        const rendir = (txt.match(/puede\s+rendir/g) || []).length;
+        const cursar = (txt.match(/puede\s+cursar/g) || []).length;
+        return rendir > cursar ? 'rendir' : 'cursar';
+    }
+
     // Geometría del grafo (en px; el <g> viewport se mueve/escala en screen-space)
     const G = { NODE_W: 170, NODE_H: 38, COL_GAP: 58, ROW_GAP: 14, HEADER_H: 34, PAD: 24 };
     G.COL_W = G.NODE_W + G.COL_GAP;
@@ -1349,7 +1423,7 @@
         const order = new Map();
 
         planRows.forEach((r, i) => {
-            const key = normalizeText(r.name);
+            const key = subjectKey(r.name);
             order.set(key, i);
             if (!byKey.has(key)) byKey.set(key, { key, name: r.name, year: r.year || 0, status: 'pendiente' });
         });
@@ -1364,22 +1438,48 @@
         });
 
         correl.forEach(item => {
-            const key = normalizeText(item.name);
+            const key = subjectKey(item.name);
             let node = byKey.get(key);
             if (!node) { node = { key, name: item.name, year: item.year || 0, status: 'pendiente' }; byKey.set(key, node); }
             if (!node.year && item.year) node.year = item.year;
             if (node.status === 'pendiente') node.status = item.status; // available | blocked
         });
 
+        // Resolver de prerrequisitos: un prerrequisito puede nombrar la materia
+        // con pequeñas diferencias respecto del plan (marcadores, orden de
+        // palabras, truncados). Antes de crear un fantasma, intentamos engancharlo
+        // a una materia REAL ya conocida: clave exacta → tokens ordenados → truncado.
+        const looseToReal = new Map();
+        for (const node of byKey.values()) {
+            const lk = subjectLooseKey(node.name);
+            if (lk && !looseToReal.has(lk)) looseToReal.set(lk, node.key);
+        }
+        // Snapshot ANTES de agregar fantasmas en el loop de aristas, así el match
+        // por truncado solo apunta a materias reales (plan/estado/correl).
+        const realKeys = [...byKey.keys()];
+        const resolveKey = (name) => {
+            const k = subjectKey(name);
+            if (byKey.has(k)) return k;
+            const lk = looseToReal.get(subjectLooseKey(name));
+            if (lk) return lk;
+            const hit = realKeys.find(rk => isTruncationOf(k, rk));
+            return hit || k;
+        };
+
         const edges = [];
         const seenEdge = new Set();
         const outgoing = new Map();
         const incoming = new Map();
         correl.forEach(item => {
-            const toKey = normalizeText(item.name);
+            const toKey = resolveKey(item.name);
             item.missing.forEach(req => {
-                const fromKey = normalizeText(req.name);
+                const fromKey = resolveKey(req.name);
+                if (fromKey === toKey) return; // nunca una materia es correlativa de sí misma
                 if (!byKey.has(fromKey)) byKey.set(fromKey, { key: fromKey, name: req.name, year: 0, status: 'pendiente' });
+                // SYSACAD trunca algunos nombres en una página y no en otra:
+                // mostramos el más completo (ej. "...Información" sobre "...Informació").
+                const fromNode = byKey.get(fromKey);
+                if (req.name.length > fromNode.name.length) fromNode.name = req.name;
                 const sig = fromKey + '→' + toKey;
                 if (seenEdge.has(sig)) return;
                 seenEdge.add(sig);
@@ -1400,9 +1500,13 @@
         return { nodes, byKey, edges, outgoing, incoming };
     }
 
-    function buildCorrelativityGraph(model) {
+    function buildCorrelativityGraph(model, terms) {
         const truncate = (s, max) => s.length > max ? s.slice(0, max - 1).trim() + '…' : s;
         const isDone = n => n.cls === 'done';
+        // El único label que depende del modo es el de "available".
+        const labelFor = status => status === 'available'
+            ? terms.can
+            : (GRAPH_STATUS[status] || GRAPH_STATUS.pendiente).label;
 
         // Recolecta el cierre transitivo siguiendo un mapa de adyacencia.
         function collect(map, startKey) {
@@ -1429,7 +1533,7 @@
         const head = el('div', { className: 'ms-graph-head' });
         head.appendChild(el('div', {
             className: 'ms-graph-title',
-            html: `${ICONS.network}<span>Mapa de correlativas</span>`
+            html: `${ICONS.network}<span>${terms.title}</span>`
         }));
         head.appendChild(el('div', { className: 'ms-graph-summary', text: summary }));
         card.appendChild(head);
@@ -1480,7 +1584,7 @@
 
         const hint = el('div', {
             className: 'ms-graph-hint',
-            text: 'Tocá una materia para ver qué necesita y qué desbloquea · arrastrá para mover · scroll para zoom'
+            text: 'Pasá el mouse por una materia para ver qué desbloquea · tocá para el detalle · arrastrá para mover · scroll para zoom'
         });
         card.appendChild(hint);
 
@@ -1488,12 +1592,15 @@
         const view = { scale: 1, tx: 0, ty: 0 };
         let showDone = true;
         let selectedKey = null;
+        let hoverKey = null;
         const dims = { w: 0, h: 0 };
         const nodeEls = new Map(); // key -> <g>
         const edgeEls = [];        // { el, from, to }
 
         function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
-        const yearSort = (a, b) => (a === 0 ? 99 : a) - (b === 0 ? 99 : b);
+        // Año 0 = ingreso / materias especiales / año sin determinar. Va a la
+        // izquierda de 1º (orden numérico natural), no después de 5º.
+        const yearSort = (a, b) => a - b;
 
         function render() {
             const nodes = model.nodes.filter(n => showDone || !isDone(n));
@@ -1519,7 +1626,7 @@
                 const t = svgEl('text', {
                     class: 'ms-graph-year', x: G.PAD + ci * G.COL_W + G.NODE_W / 2,
                     y: G.PAD + 6, 'text-anchor': 'middle'
-                }, y > 0 ? `${y}º Año` : 'Electivas / otras');
+                }, y > 0 ? `${y}º Año` : 'Ingreso / otras');
                 headersG.appendChild(t);
             });
 
@@ -1545,7 +1652,7 @@
                     class: 'ms-graph-node ms-node-' + n.cls,
                     transform: `translate(${n.x},${n.y})`,
                     role: 'button', tabindex: '0',
-                    'aria-label': `${n.name} — ${(GRAPH_STATUS[n.status] || {}).label || ''}`
+                    'aria-label': `${n.name} — ${labelFor(n.status)}`
                 });
                 g.appendChild(svgEl('rect', { class: 'ms-node-rect', x: 0, y: 0, width: G.NODE_W, height: G.NODE_H, rx: 9 }));
                 g.appendChild(svgEl('circle', { class: 'ms-node-dot', cx: 15, cy: G.NODE_H / 2, r: 5 }));
@@ -1556,6 +1663,8 @@
                 g.addEventListener('keydown', (ev) => {
                     if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(n.key); }
                 });
+                g.addEventListener('mouseenter', () => { hoverKey = n.key; paintHighlight(); });
+                g.addEventListener('mouseleave', () => { hoverKey = null; paintHighlight(); });
                 nodesG.appendChild(g);
                 nodeEls.set(n.key, g);
             });
@@ -1564,29 +1673,38 @@
             applySearch();
         }
 
-        function applyHighlight() {
-            const anc = selectedKey ? collect(model.incoming, selectedKey) : null;
-            const desc = selectedKey ? collect(model.outgoing, selectedKey) : null;
-            const related = selectedKey ? new Set([selectedKey, ...anc, ...desc]) : null;
+        // Pinta el grisado + camino resaltado. El hover tiene prioridad y muestra
+        // SOLO lo que la materia desbloquea (camino hacia adelante); el click
+        // (selección) muestra ambos sentidos. Sin nada activo, todo vuelve a su
+        // estado normal.
+        function paintHighlight() {
+            const activeKey = hoverKey || selectedKey;
+            const forwardOnly = !!hoverKey;
+            const anc = (activeKey && !forwardOnly) ? collect(model.incoming, activeKey) : new Set();
+            const desc = activeKey ? collect(model.outgoing, activeKey) : new Set();
+            const related = activeKey ? new Set([activeKey, ...anc, ...desc]) : null;
 
             nodeEls.forEach((g, key) => {
                 g.classList.remove('is-active', 'is-related', 'is-dim');
                 if (!related) return;
-                if (key === selectedKey) g.classList.add('is-active');
+                if (key === activeKey) g.classList.add('is-active');
                 else if (related.has(key)) g.classList.add('is-related');
                 else g.classList.add('is-dim');
             });
             edgeEls.forEach(({ el, from, to }) => {
                 el.classList.remove('is-active', 'is-dim');
                 if (!related) return;
-                if (related.has(from) && related.has(to) && (from === selectedKey || to === selectedKey ||
-                    (anc.has(from) && (anc.has(to) || to === selectedKey)) ||
-                    (desc.has(to) && (desc.has(from) || from === selectedKey)))) {
-                    el.classList.add('is-active');
-                } else {
-                    el.classList.add('is-dim');
-                }
+                const onPath = related.has(from) && related.has(to) && (
+                    from === activeKey || to === activeKey ||
+                    (anc.has(from) && (anc.has(to) || to === activeKey)) ||
+                    (desc.has(to) && (desc.has(from) || from === activeKey))
+                );
+                el.classList.add(onPath ? 'is-active' : 'is-dim');
             });
+        }
+
+        function applyHighlight() {
+            paintHighlight();
             renderDetail();
         }
 
@@ -1598,7 +1716,6 @@
             }
             detail.classList.add('is-open');
             const node = model.byKey.get(selectedKey);
-            const st = GRAPH_STATUS[node.status] || GRAPH_STATUS.pendiente;
 
             const close = el('button', { className: 'ms-detail-close', attrs: { type: 'button', 'aria-label': 'Cerrar' }, text: '✕' });
             close.addEventListener('click', () => select(null));
@@ -1606,8 +1723,8 @@
 
             detail.appendChild(el('div', { className: 'ms-detail-name', text: node.name }));
             const meta = el('div', { className: 'ms-detail-meta' });
-            meta.appendChild(el('span', { className: 'ms-detail-badge ms-node-' + node.cls, text: st.label }));
-            meta.appendChild(el('span', { className: 'ms-detail-year', text: node.year > 0 ? `${node.year}º año` : 'Electiva' }));
+            meta.appendChild(el('span', { className: 'ms-detail-badge ms-node-' + node.cls, text: labelFor(node.status) }));
+            meta.appendChild(el('span', { className: 'ms-detail-year', text: node.year > 0 ? `${node.year}º año` : 'Ingreso / otras' }));
             if (node.nota != null) meta.appendChild(el('span', { className: 'ms-detail-year', text: `Nota ${node.nota}` }));
             detail.appendChild(meta);
 
@@ -1623,7 +1740,7 @@
                     items.forEach(name => {
                         const li = el('li');
                         const a = el('button', { className: 'ms-detail-link', attrs: { type: 'button' }, text: name });
-                        a.addEventListener('click', () => select(normalizeText(name)));
+                        a.addEventListener('click', () => select(subjectKey(name)));
                         li.appendChild(a);
                         ul.appendChild(li);
                     });
@@ -1634,7 +1751,7 @@
                 return box;
             };
             detail.appendChild(section('Necesita (prerrequisitos)', needs, 'Sin correlativas pendientes registradas.'));
-            detail.appendChild(section('Habilita a cursar', unlocks, 'No desbloquea materias todavía.'));
+            detail.appendChild(section(terms.habilita, unlocks, 'No desbloquea materias todavía.'));
         }
 
         function applySearch() {
@@ -1754,7 +1871,7 @@
     }
 
     // Badges de estado en la tabla original de correlatividades (queda de detalle).
-    function decorateCorrelTable(table, headers) {
+    function decorateCorrelTable(table, headers, terms) {
         const corrIdx = headers.indexOf('correlatividad');
         if (corrIdx < 0) return;
         table.querySelectorAll('tbody tr').forEach(tr => {
@@ -1765,7 +1882,7 @@
             const isOk = /puede\s+(cursar|rendir)/i.test(cell.textContent);
             const badge = el('span', {
                 className: 'ms-corr-badge ' + (isOk ? 'is-ok' : 'is-blocked'),
-                text: isOk ? 'Podés cursar' : 'Bloqueada'
+                text: isOk ? terms.can : 'Bloqueada'
             });
             if (isOk) { clearNode(cell); cell.appendChild(badge); }
             else cell.insertBefore(badge, cell.firstChild);
@@ -1782,14 +1899,15 @@
         const correl = extractCorrelativas(document);
         if (!correl.length) return;
 
-        decorateCorrelTable(table, headers);
+        const terms = CORREL_TERMS[correlMode()];
+        decorateCorrelTable(table, headers, terms);
 
         // Plan completo + estado desde la caché (o fetch silencioso).
         const [planRows, estadoMap] = await Promise.all([getPlanRows(), getEstadoMap()]);
         const model = buildGraphModel({ correl, planRows, estadoMap });
         if (!model.nodes.length) return;
 
-        const card = buildCorrelativityGraph(model);
+        const card = buildCorrelativityGraph(model, terms);
         const enhancements = el('div', { className: 'ms-enhancements' });
         enhancements.appendChild(card);
 
