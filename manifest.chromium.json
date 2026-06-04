@@ -9,7 +9,7 @@
         "https://sysacad.frt.utn.edu.ar/*",
         "https://servicios.fra.utn.edu.ar/*",
         "https://sysacadweb.frgp.utn.edu.ar/*",
-        "https://www.frro.utn.edu.ar/sysacad/*"
+        "https://alumnos.frro.utn.edu.ar/*"
         "https://sysacad.frvt.utn.edu.ar/*"
       ],
       "css": [
@@ -41,7 +41,7 @@
         "https://servicios.fra.utn.edu.ar/*",
         "https://sysacadweb.frgp.utn.edu.ar/*",
         "https://sysacadweb.frre.utn.edu.ar/*",
-        "https://www.frro.utn.edu.ar/sysacad/*"
+        "https://alumnos.frro.utn.edu.ar/*",
         "https://sysacad.frvt.utn.edu.ar/*"
       ]
     }
