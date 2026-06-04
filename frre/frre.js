@@ -15,7 +15,11 @@
         cafecito: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>',
         search: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
         check: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-        info: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
+        info: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+        zoomIn: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>',
+        zoomOut: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>',
+        fit: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>',
+        network: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.5"></circle><circle cx="5" cy="18" r="2.5"></circle><circle cx="19" cy="12" r="2.5"></circle><line x1="7.2" y1="7.2" x2="16.8" y2="11"></line><line x1="7.2" y1="16.8" x2="16.8" y2="13"></line></svg>'
     };
 
     const TEXT_TO_NUM = {
@@ -28,6 +32,65 @@
         planTotal: 'sysacad_plan_total',
         planTotalTime: 'sysacad_plan_total_time'
     };
+
+    // ---------- Capa de caché híbrida ----------
+    //
+    // SYSACAD-WEB es un MPA clásico: cada navegación recarga la página entera.
+    // Varias de nuestras mejoras necesitan data de OTRAS páginas (la barra de
+    // progreso necesita el total del plan; el grafo de correlativas necesita
+    // plan + estado + correlatividad). Sin caché, cada visita re-fetchea y
+    // re-parsea todo.
+    //
+    // MS_CACHE guarda la data YA PARSEADA por página en sessionStorage (vive
+    // mientras dure la pestaña/sesión), versionada para que un cambio de shape
+    // tras un update no rompa nada. Es la base sobre la que más adelante se
+    // puede sumar una capa PJAX sin tocar los parsers.
+
+    const MS_CACHE = {
+        _prefix: 'mscache_v1:',
+        /** Devuelve la data cacheada o null si no existe / está vencida. */
+        get(key, maxAgeMs) {
+            try {
+                const raw = sessionStorage.getItem(this._prefix + key);
+                if (!raw) return null;
+                const { t, d } = JSON.parse(raw);
+                if (maxAgeMs && (Date.now() - t) > maxAgeMs) return null;
+                return d;
+            } catch (e) {
+                return null;
+            }
+        },
+        set(key, data) {
+            try {
+                sessionStorage.setItem(this._prefix + key, JSON.stringify({ t: Date.now(), d: data }));
+            } catch (e) {
+                // Quota llena o data no serializable: la mejora simplemente
+                // recalcula la próxima vez. Nunca rompemos la navegación.
+            }
+        }
+    };
+
+    // Dedupe de fetches concurrentes: si dos mejoras piden la misma página en
+    // el mismo tick (o un prefetch ya está en vuelo), comparten la promesa en
+    // vez de pegarle dos veces al servidor. Vive en memoria (se pierde al
+    // navegar, que es justo cuando ya no sirve).
+    const _docPromises = new Map();
+
+    /**
+     * Fetch + parse de una página de SYSACAD a un Document, con dedupe.
+     * Siempre con la sesión actual (`credentials: 'same-origin'`) y fallo
+     * silencioso (devuelve null). NO cachea el HTML crudo: las páginas son
+     * privadas y lo que nos interesa cachear es la data ya extraída.
+     */
+    function fetchDoc(path) {
+        if (_docPromises.has(path)) return _docPromises.get(path);
+        const p = fetch(path, { credentials: 'same-origin' })
+            .then(resp => resp.ok ? resp.text() : null)
+            .then(html => html ? new DOMParser().parseFromString(html, 'text/html') : null)
+            .catch(() => null);
+        _docPromises.set(path, p);
+        return p;
+    }
 
     // ---------- DOM helpers ----------
 
@@ -43,13 +106,41 @@
         return node;
     }
 
-    function findTableByHeaders(...required) {
-        const tables = document.querySelectorAll('table');
-        for (const t of tables) {
+    // Busca en `root` (Document o elemento) la primera tabla cuyos headers
+    // incluyan todos los `required`. Sirve tanto para la página viva como para
+    // documentos fetcheados de otras páginas.
+    // Crea un nodo SVG (namespace correcto). `text` va por textContent para
+    // que nombres de materias con caracteres especiales nunca inyecten markup.
+    function svgEl(tag, attrs = {}, text = null) {
+        const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+        if (text != null) node.textContent = text;
+        return node;
+    }
+
+    function findTableIn(root, ...required) {
+        for (const t of root.querySelectorAll('table')) {
             const headers = [...t.querySelectorAll('thead th')].map(h => h.textContent.trim().toLowerCase());
             if (required.every(r => headers.includes(r.toLowerCase()))) {
                 return { table: t, headers };
             }
+        }
+        return null;
+    }
+
+    function findTableByHeaders(...required) {
+        return findTableIn(document, ...required);
+    }
+
+    // Busca en el sidebar/nav un link cuyo texto incluya todas las keywords.
+    // Devuelve su href real para no hardcodear slugs (robusto entre regionales).
+    function findNavLink(...keywords) {
+        const want = keywords.map(k => normalizeText(k));
+        for (const a of document.querySelectorAll('a[href]')) {
+            const t = normalizeText(a.textContent);
+            if (!want.every(k => t.includes(k))) continue;
+            const href = a.getAttribute('href');
+            if (href && !href.startsWith('#') && !/^javascript:/i.test(href)) return href;
         }
         return null;
     }
@@ -86,43 +177,142 @@
     }
 
 
+    // ---------- Extractores de data (reutilizables live + fetch) ----------
+    //
+    // Cada extractor parsea una página a una estructura liviana y la guarda en
+    // MS_CACHE. Funcionan igual sobre el `document` vivo o sobre un Document
+    // fetcheado de otra página, así que un solo lugar alimenta la caché.
+
+    const SESSION_TTL = 30 * 60 * 1000; // 30 min: datos académicos cambian poco
+
+    /** Materias del Plan → [{ year, name }]. Set completo de materias (~51). */
+    function extractPlanRows(root) {
+        const found = findTableIn(root, 'Año', 'Materia', 'Se Cursa', 'Se Rinde');
+        if (!found) return [];
+        const yearIdx = found.headers.indexOf('año');
+        const matIdx = found.headers.indexOf('materia');
+        const rows = [];
+        found.table.querySelectorAll('tbody tr').forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length <= matIdx) return;
+            const name = tds[matIdx].textContent.trim();
+            if (!name) return;
+            const year = parseInt((tds[yearIdx] && tds[yearIdx].textContent || '').trim(), 10);
+            rows.push({ year: isNaN(year) ? 0 : year, name });
+        });
+        if (rows.length) {
+            MS_CACHE.set('plan', rows);
+            localStorage.setItem(STORAGE.planTotal, String(rows.length));
+            localStorage.setItem(STORAGE.planTotalTime, String(Date.now()));
+        }
+        return rows;
+    }
+
+    /** Estado Académico → { nombreNormalizado: { status, nota, estado } }. */
+    function extractEstadoMap(root) {
+        const found = findTableIn(root, 'Año', 'Materia', 'Estado');
+        if (!found) return {};
+        const matIdx = found.headers.indexOf('materia');
+        const estadoIdx = found.headers.indexOf('estado');
+        const map = {};
+        found.table.querySelectorAll('tbody tr').forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length <= Math.max(matIdx, estadoIdx)) return;
+            const name = tds[matIdx].textContent.trim();
+            if (!name) return;
+            const estado = tds[estadoIdx].textContent.trim();
+            let status = null, nota = null;
+            if (/^aprobada con/i.test(estado)) {
+                status = 'aprobada';
+                const m = estado.match(/aprobada con (\d+)/i);
+                if (m) nota = parseInt(m[1], 10);
+            } else if (/^aprobada en/i.test(estado)) {
+                status = 'equiv';
+            } else if (/^cursa/i.test(estado)) {
+                status = 'cursando';
+            }
+            map[normalizeText(name)] = { name, status, nota, estado };
+        });
+        MS_CACHE.set('estado', map);
+        return map;
+    }
+
     /**
-     * Obtiene la cantidad total de materias del plan.
-     * 1° intenta localStorage (con freshness de 7 días).
-     * 2° si no hay cache, fetch a /Alumnos/Materias_del_Plan/ usando la sesión actual.
-     * Retorna 0 si nada funciona.
+     * Correlatividades → [{ year, name, status, missing: [{ rel, name }] }].
+     * status: 'available' (Puede Cursar) | 'blocked' (le faltan correlativas).
+     * rel: 'regularizar' | 'aprobar'. Página personalizada al estado del alumno.
+     */
+    function extractCorrelativas(root) {
+        const found = findTableIn(root, 'Año', 'Materia', 'Correlatividad');
+        if (!found) return [];
+        const yearIdx = found.headers.indexOf('año');
+        const matIdx = found.headers.indexOf('materia');
+        const corrIdx = found.headers.indexOf('correlatividad');
+        const list = [];
+        found.table.querySelectorAll('tbody tr').forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length <= Math.max(matIdx, corrIdx)) return;
+            const name = tds[matIdx].textContent.trim();
+            if (!name) return;
+            const year = parseInt((tds[yearIdx] && tds[yearIdx].textContent || '').trim(), 10);
+            // El <br> separa cada requisito incumplido. Lo pasamos a saltos de
+            // línea y limpiamos tags residuales para quedarnos con texto plano.
+            const lines = tds[corrIdx].innerHTML
+                .replace(/<br\s*\/?>/gi, '\n')
+                .split('\n')
+                .map(l => l.replace(/<[^>]+>/g, '').trim())
+                .filter(Boolean);
+            const missing = [];
+            for (const line of lines) {
+                if (/puede\s+(cursar|rendir)/i.test(line)) continue;
+                if (!/^no\s/i.test(line)) continue;
+                const rel = /aprob/i.test(line) ? 'aprobar' : 'regularizar';
+                // "No regularizó Simulación (Ord. 1878)" → "Simulación"
+                const cleaned = line.replace(/\s*\([^)]*\)\s*$/, '').trim();
+                const mm = cleaned.match(/^no\s+\S+\s+(.+)$/i);
+                if (mm && mm[1]) missing.push({ rel, name: mm[1].trim() });
+            }
+            list.push({
+                year: isNaN(year) ? 0 : year,
+                name,
+                status: missing.length ? 'blocked' : 'available',
+                missing
+            });
+        });
+        MS_CACHE.set('correl', list);
+        return list;
+    }
+
+    // ---------- Getters cacheados (cache → fetch → extract) ----------
+
+    async function getPlanRows() {
+        const cached = MS_CACHE.get('plan', SESSION_TTL);
+        if (cached && cached.length) return cached;
+        const href = findNavLink('materias', 'plan') || '/Alumnos/Materias_del_Plan/';
+        const doc = await fetchDoc(href);
+        return doc ? extractPlanRows(doc) : (cached || []);
+    }
+
+    async function getEstadoMap() {
+        const cached = MS_CACHE.get('estado', SESSION_TTL);
+        if (cached) return cached;
+        const href = findNavLink('estado');
+        if (!href) return {};
+        const doc = await fetchDoc(href);
+        return doc ? extractEstadoMap(doc) : {};
+    }
+
+    /**
+     * Total de materias del plan. Mantiene el cache cross-sesión en
+     * localStorage (7 días) para el número, apoyándose en getPlanRows.
      */
     async function getPlanTotal() {
         const cached = parseInt(localStorage.getItem(STORAGE.planTotal) || '0', 10);
         const cachedTime = parseInt(localStorage.getItem(STORAGE.planTotalTime) || '0', 10);
         const sevenDays = 7 * 24 * 60 * 60 * 1000;
-        if (cached > 0 && Date.now() - cachedTime < sevenDays) {
-            return cached;
-        }
-
-        try {
-            const resp = await fetch('/Alumnos/Materias_del_Plan/', {
-                credentials: 'same-origin'
-            });
-            if (!resp.ok) return cached || 0;
-            const html = await resp.text();
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            for (const t of doc.querySelectorAll('table')) {
-                const headers = [...t.querySelectorAll('thead th')]
-                    .map(h => h.textContent.trim().toLowerCase());
-                if (headers.includes('año') && headers.includes('se cursa')) {
-                    const rows = t.querySelectorAll('tbody tr');
-                    if (rows.length > 0) {
-                        localStorage.setItem(STORAGE.planTotal, String(rows.length));
-                        localStorage.setItem(STORAGE.planTotalTime, String(Date.now()));
-                        return rows.length;
-                    }
-                }
-            }
-        } catch (e) {
-            // Silent fail: progress bar simplemente no aparece
-        }
-        return cached || 0;
+        if (cached > 0 && Date.now() - cachedTime < sevenDays) return cached;
+        const rows = await getPlanRows();
+        return rows.length || cached || 0;
     }
 
     // ---------- Components ----------
@@ -385,6 +575,10 @@
         if (!found) return;
         const { table } = found;
 
+        // Alimentamos la caché con el estado para que el grafo de correlativas
+        // (u otras páginas) no tengan que re-fetchear esta página.
+        extractEstadoMap(document);
+
         let sumNota = 0;
         let countAprobada = 0;
         let countEquiv = 0;
@@ -597,11 +791,9 @@
 
         const rows = table.querySelectorAll('tbody tr');
 
-        // Guardar total del plan en localStorage para usar en Estado Académico (progress bar)
-        if (rows.length > 0) {
-            localStorage.setItem(STORAGE.planTotal, String(rows.length));
-            localStorage.setItem(STORAGE.planTotalTime, String(Date.now()));
-        }
+        // Guardar el plan completo en caché (lista + total). Alimenta tanto la
+        // barra de progreso de Estado Académico como el grafo de correlativas.
+        extractPlanRows(document);
 
         rows.forEach(row => {
             const tds = row.querySelectorAll('td');
@@ -1130,6 +1322,481 @@
         }
     }
 
+    // ---------- Correlatividades: grafo interactivo ----------
+    //
+    // Vista "qué materias siguientes correlativas". Cruza la página de
+    // correlatividad (viva) con el plan completo y el estado académico (caché)
+    // y dibuja un DAG por columnas de año en SVG, con zoom/pan, búsqueda y un
+    // filtro "solo lo que me falta" para que escale del caso "1er año, 51
+    // materias bloqueadas" al "avanzado, casi todo aprobado".
+
+    const GRAPH_STATUS = {
+        aprobada:  { label: 'Aprobada',      cls: 'done' },
+        equiv:     { label: 'Equivalencia',  cls: 'done' },
+        cursando:  { label: 'Cursando',      cls: 'cursando' },
+        available: { label: 'Podés cursar',  cls: 'available' },
+        blocked:   { label: 'Bloqueada',     cls: 'blocked' },
+        pendiente: { label: 'Pendiente',     cls: 'pending' }
+    };
+
+    // Geometría del grafo (en px; el <g> viewport se mueve/escala en screen-space)
+    const G = { NODE_W: 170, NODE_H: 38, COL_GAP: 58, ROW_GAP: 14, HEADER_H: 34, PAD: 24 };
+    G.COL_W = G.NODE_W + G.COL_GAP;
+    G.ROW_H = G.NODE_H + G.ROW_GAP;
+
+    function buildGraphModel({ correl, planRows, estadoMap }) {
+        const byKey = new Map();
+        const order = new Map();
+
+        planRows.forEach((r, i) => {
+            const key = normalizeText(r.name);
+            order.set(key, i);
+            if (!byKey.has(key)) byKey.set(key, { key, name: r.name, year: r.year || 0, status: 'pendiente' });
+        });
+
+        Object.entries(estadoMap).forEach(([key, info]) => {
+            let node = byKey.get(key);
+            if (!node) { node = { key, name: info.name || key, year: 0, status: 'pendiente' }; byKey.set(key, node); }
+            if (info.status === 'aprobada' || info.status === 'equiv' || info.status === 'cursando') {
+                node.status = info.status;
+            }
+            if (info.nota != null) node.nota = info.nota;
+        });
+
+        correl.forEach(item => {
+            const key = normalizeText(item.name);
+            let node = byKey.get(key);
+            if (!node) { node = { key, name: item.name, year: item.year || 0, status: 'pendiente' }; byKey.set(key, node); }
+            if (!node.year && item.year) node.year = item.year;
+            if (node.status === 'pendiente') node.status = item.status; // available | blocked
+        });
+
+        const edges = [];
+        const seenEdge = new Set();
+        const outgoing = new Map();
+        const incoming = new Map();
+        correl.forEach(item => {
+            const toKey = normalizeText(item.name);
+            item.missing.forEach(req => {
+                const fromKey = normalizeText(req.name);
+                if (!byKey.has(fromKey)) byKey.set(fromKey, { key: fromKey, name: req.name, year: 0, status: 'pendiente' });
+                const sig = fromKey + '→' + toKey;
+                if (seenEdge.has(sig)) return;
+                seenEdge.add(sig);
+                edges.push({ from: fromKey, to: toKey, rel: req.rel });
+                if (!outgoing.has(fromKey)) outgoing.set(fromKey, []);
+                outgoing.get(fromKey).push(toKey);
+                if (!incoming.has(toKey)) incoming.set(toKey, []);
+                incoming.get(toKey).push(fromKey);
+            });
+        });
+
+        const nodes = [...byKey.values()].map(n => {
+            n.cls = (GRAPH_STATUS[n.status] || GRAPH_STATUS.pendiente).cls;
+            n.order = order.has(n.key) ? order.get(n.key) : 9999;
+            return n;
+        });
+
+        return { nodes, byKey, edges, outgoing, incoming };
+    }
+
+    function buildCorrelativityGraph(model) {
+        const truncate = (s, max) => s.length > max ? s.slice(0, max - 1).trim() + '…' : s;
+        const isDone = n => n.cls === 'done';
+
+        // Recolecta el cierre transitivo siguiendo un mapa de adyacencia.
+        function collect(map, startKey) {
+            const seen = new Set();
+            const stack = [startKey];
+            while (stack.length) {
+                const k = stack.pop();
+                for (const nb of (map.get(k) || [])) {
+                    if (!seen.has(nb)) { seen.add(nb); stack.push(nb); }
+                }
+            }
+            return seen;
+        }
+
+        // --- Shell del card ---
+        const counts = model.nodes.reduce((a, n) => { a[n.cls] = (a[n.cls] || 0) + 1; return a; }, {});
+        const summary = [
+            counts.done ? `${counts.done} aprobadas` : null,
+            counts.available ? `${counts.available} disponibles` : null,
+            counts.blocked ? `${counts.blocked} bloqueadas` : null
+        ].filter(Boolean).join(' · ');
+
+        const card = el('div', { className: 'ms-graph-card' });
+        const head = el('div', { className: 'ms-graph-head' });
+        head.appendChild(el('div', {
+            className: 'ms-graph-title',
+            html: `${ICONS.network}<span>Mapa de correlativas</span>`
+        }));
+        head.appendChild(el('div', { className: 'ms-graph-summary', text: summary }));
+        card.appendChild(head);
+
+        // --- Toolbar ---
+        const toolbar = el('div', { className: 'ms-graph-toolbar' });
+
+        const searchWrap = el('div', {
+            className: 'ms-graph-search',
+            html: `<span class="ms-search-icon">${ICONS.search}</span><input type="text" class="ms-search-input" placeholder="Resaltar materia…">`
+        });
+        const searchInput = searchWrap.querySelector('input');
+        toolbar.appendChild(searchWrap);
+
+        const toggleBtn = el('button', {
+            className: 'ms-graph-toggle',
+            attrs: { type: 'button', 'aria-pressed': 'false' },
+            text: 'Solo lo que me falta'
+        });
+        toolbar.appendChild(toggleBtn);
+
+        const zoomCtrls = el('div', { className: 'ms-graph-zoom' });
+        const btnOut = el('button', { className: 'ms-graph-btn', attrs: { type: 'button', title: 'Alejar', 'aria-label': 'Alejar' }, html: ICONS.zoomOut });
+        const btnFit = el('button', { className: 'ms-graph-btn', attrs: { type: 'button', title: 'Ajustar a pantalla', 'aria-label': 'Ajustar a pantalla' }, html: ICONS.fit });
+        const btnIn = el('button', { className: 'ms-graph-btn', attrs: { type: 'button', title: 'Acercar', 'aria-label': 'Acercar' }, html: ICONS.zoomIn });
+        zoomCtrls.appendChild(btnOut);
+        zoomCtrls.appendChild(btnFit);
+        zoomCtrls.appendChild(btnIn);
+        toolbar.appendChild(zoomCtrls);
+        card.appendChild(toolbar);
+
+        // --- Stage (SVG) + panel de detalle ---
+        const stage = el('div', { className: 'ms-graph-stage' });
+        const svg = svgEl('svg', { class: 'ms-graph-svg' });
+        const viewport = svgEl('g', { class: 'ms-graph-viewport' });
+        const headersG = svgEl('g', { class: 'ms-graph-headers' });
+        const edgesG = svgEl('g', { class: 'ms-graph-edges' });
+        const nodesG = svgEl('g', { class: 'ms-graph-nodes' });
+        viewport.appendChild(headersG);
+        viewport.appendChild(edgesG);
+        viewport.appendChild(nodesG);
+        svg.appendChild(viewport);
+        stage.appendChild(svg);
+
+        const detail = el('div', { className: 'ms-graph-detail', attrs: { 'aria-live': 'polite' } });
+        stage.appendChild(detail);
+        card.appendChild(stage);
+
+        const hint = el('div', {
+            className: 'ms-graph-hint',
+            text: 'Tocá una materia para ver qué necesita y qué desbloquea · arrastrá para mover · scroll para zoom'
+        });
+        card.appendChild(hint);
+
+        // --- Estado interactivo ---
+        const view = { scale: 1, tx: 0, ty: 0 };
+        let showDone = true;
+        let selectedKey = null;
+        const dims = { w: 0, h: 0 };
+        const nodeEls = new Map(); // key -> <g>
+        const edgeEls = [];        // { el, from, to }
+
+        function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+        const yearSort = (a, b) => (a === 0 ? 99 : a) - (b === 0 ? 99 : b);
+
+        function render() {
+            const nodes = model.nodes.filter(n => showDone || !isDone(n));
+            const years = [...new Set(nodes.map(n => n.year))].sort(yearSort);
+            const cols = years.map(y => nodes.filter(n => n.year === y)
+                .sort((a, b) => a.order - b.order || a.name.localeCompare(b.name)));
+            const maxRows = Math.max(1, ...cols.map(c => c.length));
+
+            dims.w = G.PAD * 2 + Math.max(1, years.length) * G.COL_W - G.COL_GAP;
+            dims.h = G.PAD * 2 + G.HEADER_H + maxRows * G.ROW_H;
+
+            years.forEach((y, ci) => cols[ci].forEach((n, ri) => {
+                n.x = G.PAD + ci * G.COL_W;
+                n.y = G.PAD + G.HEADER_H + ri * G.ROW_H;
+            }));
+
+            clear(headersG); clear(edgesG); clear(nodesG);
+            nodeEls.clear();
+            edgeEls.length = 0;
+
+            // Headers de año
+            years.forEach((y, ci) => {
+                const t = svgEl('text', {
+                    class: 'ms-graph-year', x: G.PAD + ci * G.COL_W + G.NODE_W / 2,
+                    y: G.PAD + 6, 'text-anchor': 'middle'
+                }, y > 0 ? `${y}º Año` : 'Electivas / otras');
+                headersG.appendChild(t);
+            });
+
+            // Aristas (solo entre nodos visibles)
+            const visible = new Set(nodes.map(n => n.key));
+            model.edges.forEach(e => {
+                if (!visible.has(e.from) || !visible.has(e.to)) return;
+                const from = model.byKey.get(e.from), to = model.byKey.get(e.to);
+                const fx = from.x + G.NODE_W, fy = from.y + G.NODE_H / 2;
+                const tx2 = to.x, ty2 = to.y + G.NODE_H / 2;
+                const dx = Math.max(28, Math.abs(tx2 - fx) * 0.5);
+                const path = svgEl('path', {
+                    class: 'ms-graph-edge' + (e.rel === 'aprobar' ? ' ms-edge-aprobar' : ''),
+                    d: `M${fx},${fy} C${fx + dx},${fy} ${tx2 - dx},${ty2} ${tx2},${ty2}`
+                });
+                edgesG.appendChild(path);
+                edgeEls.push({ el: path, from: e.from, to: e.to });
+            });
+
+            // Nodos
+            nodes.forEach(n => {
+                const g = svgEl('g', {
+                    class: 'ms-graph-node ms-node-' + n.cls,
+                    transform: `translate(${n.x},${n.y})`,
+                    role: 'button', tabindex: '0',
+                    'aria-label': `${n.name} — ${(GRAPH_STATUS[n.status] || {}).label || ''}`
+                });
+                g.appendChild(svgEl('rect', { class: 'ms-node-rect', x: 0, y: 0, width: G.NODE_W, height: G.NODE_H, rx: 9 }));
+                g.appendChild(svgEl('circle', { class: 'ms-node-dot', cx: 15, cy: G.NODE_H / 2, r: 5 }));
+                g.appendChild(svgEl('text', { class: 'ms-node-label', x: 28, y: G.NODE_H / 2, 'dominant-baseline': 'central' }, truncate(n.name, 22)));
+                const title = svgEl('title', {}, n.name);
+                g.appendChild(title);
+                g.addEventListener('click', (ev) => { ev.stopPropagation(); select(n.key); });
+                g.addEventListener('keydown', (ev) => {
+                    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(n.key); }
+                });
+                nodesG.appendChild(g);
+                nodeEls.set(n.key, g);
+            });
+
+            applyHighlight();
+            applySearch();
+        }
+
+        function applyHighlight() {
+            const anc = selectedKey ? collect(model.incoming, selectedKey) : null;
+            const desc = selectedKey ? collect(model.outgoing, selectedKey) : null;
+            const related = selectedKey ? new Set([selectedKey, ...anc, ...desc]) : null;
+
+            nodeEls.forEach((g, key) => {
+                g.classList.remove('is-active', 'is-related', 'is-dim');
+                if (!related) return;
+                if (key === selectedKey) g.classList.add('is-active');
+                else if (related.has(key)) g.classList.add('is-related');
+                else g.classList.add('is-dim');
+            });
+            edgeEls.forEach(({ el, from, to }) => {
+                el.classList.remove('is-active', 'is-dim');
+                if (!related) return;
+                if (related.has(from) && related.has(to) && (from === selectedKey || to === selectedKey ||
+                    (anc.has(from) && (anc.has(to) || to === selectedKey)) ||
+                    (desc.has(to) && (desc.has(from) || from === selectedKey)))) {
+                    el.classList.add('is-active');
+                } else {
+                    el.classList.add('is-dim');
+                }
+            });
+            renderDetail();
+        }
+
+        function renderDetail() {
+            clear(detail);
+            if (!selectedKey) {
+                detail.classList.remove('is-open');
+                return;
+            }
+            detail.classList.add('is-open');
+            const node = model.byKey.get(selectedKey);
+            const st = GRAPH_STATUS[node.status] || GRAPH_STATUS.pendiente;
+
+            const close = el('button', { className: 'ms-detail-close', attrs: { type: 'button', 'aria-label': 'Cerrar' }, text: '✕' });
+            close.addEventListener('click', () => select(null));
+            detail.appendChild(close);
+
+            detail.appendChild(el('div', { className: 'ms-detail-name', text: node.name }));
+            const meta = el('div', { className: 'ms-detail-meta' });
+            meta.appendChild(el('span', { className: 'ms-detail-badge ms-node-' + node.cls, text: st.label }));
+            meta.appendChild(el('span', { className: 'ms-detail-year', text: node.year > 0 ? `${node.year}º año` : 'Electiva' }));
+            if (node.nota != null) meta.appendChild(el('span', { className: 'ms-detail-year', text: `Nota ${node.nota}` }));
+            detail.appendChild(meta);
+
+            const names = keys => keys.map(k => (model.byKey.get(k) || {}).name).filter(Boolean);
+            const needs = names(model.incoming.get(selectedKey) || []);
+            const unlocks = names(model.outgoing.get(selectedKey) || []);
+
+            const section = (title, items, emptyMsg) => {
+                const box = el('div', { className: 'ms-detail-section' });
+                box.appendChild(el('div', { className: 'ms-detail-label', text: title }));
+                if (items.length) {
+                    const ul = el('ul', { className: 'ms-detail-list' });
+                    items.forEach(name => {
+                        const li = el('li');
+                        const a = el('button', { className: 'ms-detail-link', attrs: { type: 'button' }, text: name });
+                        a.addEventListener('click', () => select(normalizeText(name)));
+                        li.appendChild(a);
+                        ul.appendChild(li);
+                    });
+                    box.appendChild(ul);
+                } else {
+                    box.appendChild(el('div', { className: 'ms-detail-empty', text: emptyMsg }));
+                }
+                return box;
+            };
+            detail.appendChild(section('Necesita (prerrequisitos)', needs, 'Sin correlativas pendientes registradas.'));
+            detail.appendChild(section('Habilita a cursar', unlocks, 'No desbloquea materias todavía.'));
+        }
+
+        function applySearch() {
+            const q = normalizeText(searchInput.value.trim());
+            let firstHit = null;
+            nodeEls.forEach((g, key) => {
+                g.classList.remove('is-search-hit', 'is-search-miss');
+                if (!q) return;
+                const name = normalizeText(model.byKey.get(key).name);
+                if (name.includes(q)) { g.classList.add('is-search-hit'); if (!firstHit) firstHit = key; }
+                else g.classList.add('is-search-miss');
+            });
+            if (firstHit) centerOn(firstHit);
+        }
+
+        function centerOn(key) {
+            const n = model.byKey.get(key);
+            if (!n || n.x == null) return;
+            const r = stage.getBoundingClientRect();
+            if (!r.width) return;
+            view.tx = r.width / 2 - (n.x + G.NODE_W / 2) * view.scale;
+            view.ty = r.height / 2 - (n.y + G.NODE_H / 2) * view.scale;
+            applyTransform();
+        }
+
+        function select(key) {
+            selectedKey = (key === selectedKey) ? null : key;
+            applyHighlight();
+        }
+
+        function applyTransform() {
+            viewport.setAttribute('transform', `translate(${view.tx} ${view.ty}) scale(${view.scale})`);
+        }
+
+        function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+        function fit() {
+            const r = stage.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            const s = clamp(Math.min(r.width / dims.w, r.height / dims.h), 0.2, 1.4);
+            view.scale = s;
+            view.tx = Math.max(0, (r.width - dims.w * s) / 2);
+            // Grafos altos (1er año): alinear arriba en vez de centrar fuera de vista
+            view.ty = dims.h * s > r.height ? G.PAD : (r.height - dims.h * s) / 2;
+            applyTransform();
+        }
+
+        function zoomBy(factor, cx, cy) {
+            const r = stage.getBoundingClientRect();
+            const px = cx != null ? cx : r.width / 2;
+            const py = cy != null ? cy : r.height / 2;
+            const ns = clamp(view.scale * factor, 0.2, 2.5);
+            view.tx = px - (px - view.tx) * (ns / view.scale);
+            view.ty = py - (py - view.ty) * (ns / view.scale);
+            view.scale = ns;
+            applyTransform();
+        }
+
+        // --- Wiring de interacción ---
+        searchInput.addEventListener('input', applySearch);
+        toggleBtn.addEventListener('click', () => {
+            showDone = !showDone;
+            toggleBtn.classList.toggle('is-active', !showDone);
+            toggleBtn.setAttribute('aria-pressed', String(!showDone));
+            render();
+            requestAnimationFrame(fit);
+        });
+        btnIn.addEventListener('click', () => zoomBy(1.2));
+        btnOut.addEventListener('click', () => zoomBy(1 / 1.2));
+        btnFit.addEventListener('click', fit);
+
+        svg.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const r = stage.getBoundingClientRect();
+            zoomBy(e.deltaY < 0 ? 1.1 : 1 / 1.1, e.clientX - r.left, e.clientY - r.top);
+        }, { passive: false });
+
+        // Pan con drag (click en vacío deselecciona)
+        let dragging = false, moved = false, startX = 0, startY = 0, startTx = 0, startTy = 0;
+        svg.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('.ms-graph-node')) return;
+            dragging = true; moved = false;
+            startX = e.clientX; startY = e.clientY;
+            startTx = view.tx; startTy = view.ty;
+            svg.setPointerCapture(e.pointerId);
+            svg.classList.add('is-grabbing');
+        });
+        svg.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - startX, dy = e.clientY - startY;
+            if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+            view.tx = startTx + dx; view.ty = startTy + dy;
+            applyTransform();
+        });
+        const endDrag = (e) => {
+            if (!dragging) return;
+            dragging = false;
+            svg.classList.remove('is-grabbing');
+            if (!moved && !e.target.closest('.ms-graph-node')) select(null);
+        };
+        svg.addEventListener('pointerup', endDrag);
+        svg.addEventListener('pointercancel', endDrag);
+
+        render();
+        // Auto-fit cuando el stage tenga tamaño real (post-inserción en el DOM)
+        if (typeof ResizeObserver === 'function') {
+            const ro = new ResizeObserver(() => {
+                const r = stage.getBoundingClientRect();
+                if (r.width > 0 && r.height > 0) { fit(); ro.disconnect(); }
+            });
+            ro.observe(stage);
+        } else {
+            requestAnimationFrame(fit);
+        }
+
+        return card;
+    }
+
+    // Badges de estado en la tabla original de correlatividades (queda de detalle).
+    function decorateCorrelTable(table, headers) {
+        const corrIdx = headers.indexOf('correlatividad');
+        if (corrIdx < 0) return;
+        table.querySelectorAll('tbody tr').forEach(tr => {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length <= corrIdx) return;
+            const cell = tds[corrIdx];
+            cell.classList.add('ms-corr-cell');
+            const isOk = /puede\s+(cursar|rendir)/i.test(cell.textContent);
+            const badge = el('span', {
+                className: 'ms-corr-badge ' + (isOk ? 'is-ok' : 'is-blocked'),
+                text: isOk ? 'Podés cursar' : 'Bloqueada'
+            });
+            if (isOk) { clearNode(cell); cell.appendChild(badge); }
+            else cell.insertBefore(badge, cell.firstChild);
+        });
+    }
+
+    function clearNode(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+    async function handleCorrelatividades() {
+        const found = findTableByHeaders('Año', 'Materia', 'Correlatividad');
+        if (!found) return;
+        const { table, headers } = found;
+
+        const correl = extractCorrelativas(document);
+        if (!correl.length) return;
+
+        decorateCorrelTable(table, headers);
+
+        // Plan completo + estado desde la caché (o fetch silencioso).
+        const [planRows, estadoMap] = await Promise.all([getPlanRows(), getEstadoMap()]);
+        const model = buildGraphModel({ correl, planRows, estadoMap });
+        if (!model.nodes.length) return;
+
+        const card = buildCorrelativityGraph(model);
+        const enhancements = el('div', { className: 'ms-enhancements' });
+        enhancements.appendChild(card);
+
+        const insertionPoint = table.closest('.table-responsive') || table;
+        insertionPoint.parentNode.insertBefore(enhancements, insertionPoint);
+    }
+
     // ---------- Login page enhancements ----------
 
     function handleLogin() {
@@ -1509,14 +2176,36 @@
         });
     }
 
+    // Prefetch en hover: al pasar el mouse sobre un link interno, lo fetcheamos
+    // (con dedupe). Calienta la caché HTTP del navegador cuando la página lo
+    // permite; el beneficio sólido y persistente entre navegaciones es la caché
+    // de data parseada (MS_CACHE en sessionStorage) que alimentan los getters.
+    function initPrefetch() {
+        const prefetched = new Set();
+        document.addEventListener('mouseover', (e) => {
+            const a = e.target.closest && e.target.closest('a[href]');
+            if (!a) return;
+            const href = a.getAttribute('href');
+            if (!href || href.startsWith('#') || /^javascript:/i.test(href)) return;
+            let url;
+            try { url = new URL(href, location.href); } catch (err) { return; }
+            if (url.origin !== location.origin || url.pathname === location.pathname) return;
+            if (prefetched.has(url.href)) return;
+            prefetched.add(url.href);
+            fetchDoc(url.pathname + url.search);
+        }, { passive: true });
+    }
+
     function init() {
         initThemeAndFabs();
+        initPrefetch();
 
         const path = location.pathname.toLowerCase();
         if (path.includes('/alumnos/estado')) handleEstadoAcademico();
         if (path.includes('/alumnos/examenes')) handleExamenes();
         if (path.includes('/alumnos/materias_del_plan')) handleMateriasDelPlan();
         if (path.includes('/alumnos/cursado')) handleMateriasActuales();
+        if (path.includes('correlativ')) handleCorrelatividades();
         if (path.includes('/alumnos/encuesta')) handleEncuesta();
         // Login: detección por DOM, no por URL (puede vivir en /, /login/, etc.)
         handleLogin();
