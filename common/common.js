@@ -30,6 +30,7 @@ const regionalMap = Object.freeze({
     frsc: 'San Francisco',
     frt: 'Tucumán',
     frvm: 'Villa María',
+    frvt: 'Venado Tuerto',
 });
 
 /**
