@@ -43,8 +43,8 @@
     //
     // MS_CACHE guarda la data YA PARSEADA por página en sessionStorage (vive
     // mientras dure la pestaña/sesión), versionada para que un cambio de shape
-    // tras un update no rompa nada. Es la base sobre la que más adelante se
-    // puede sumar una capa PJAX sin tocar los parsers.
+    // tras un update no rompa nada. Reutiliza los parsers existentes: cada getter
+    // hace cache → fetch → extract, sin re-pegarle al servidor dentro de la sesión.
 
     const MS_CACHE = {
         _prefix: 'mscache_v3:',
@@ -1902,17 +1902,44 @@
         const terms = CORREL_TERMS[correlMode()];
         decorateCorrelTable(table, headers, terms);
 
+        // El grafo necesita plan + estado (pueden venir por fetch la 1ra vez).
+        // Mostramos un skeleton en el lugar del grafo mientras tanto.
+        const insertionPoint = table.closest('.table-responsive') || table;
+        const enhancements = el('div', { className: 'ms-enhancements' });
+        const skeleton = buildGraphSkeleton(terms);
+        enhancements.appendChild(skeleton);
+        insertionPoint.parentNode.insertBefore(enhancements, insertionPoint);
+
         // Plan completo + estado desde la caché (o fetch silencioso).
         const [planRows, estadoMap] = await Promise.all([getPlanRows(), getEstadoMap()]);
         const model = buildGraphModel({ correl, planRows, estadoMap });
-        if (!model.nodes.length) return;
+        if (!model.nodes.length) { enhancements.remove(); return; }
 
-        const card = buildCorrelativityGraph(model, terms);
-        const enhancements = el('div', { className: 'ms-enhancements' });
-        enhancements.appendChild(card);
+        skeleton.replaceWith(buildCorrelativityGraph(model, terms));
+    }
 
-        const insertionPoint = table.closest('.table-responsive') || table;
-        insertionPoint.parentNode.insertBefore(enhancements, insertionPoint);
+    // Placeholder con shimmer mientras se trae plan + estado para el grafo.
+    function buildGraphSkeleton(terms) {
+        const card = el('div', { className: 'ms-graph-card ms-graph-skeleton' });
+        const head = el('div', { className: 'ms-graph-head' });
+        head.appendChild(el('div', {
+            className: 'ms-graph-title',
+            html: `${ICONS.network}<span>${terms.title}</span>`
+        }));
+        head.appendChild(el('div', { className: 'ms-skel-line ms-skel-summary' }));
+        card.appendChild(head);
+
+        const stage = el('div', { className: 'ms-graph-stage ms-skel-stage' });
+        // 6 columnas (ingreso + 5 años) con un puñado de nodos fantasma cada una.
+        for (let c = 0; c < 6; c++) {
+            const col = el('div', { className: 'ms-skel-col' });
+            col.appendChild(el('div', { className: 'ms-skel-line ms-skel-year' }));
+            const n = 3 + ((c * 2) % 4); // alturas variadas, sin random
+            for (let i = 0; i < n; i++) col.appendChild(el('div', { className: 'ms-skel-node' }));
+            stage.appendChild(col);
+        }
+        card.appendChild(stage);
+        return card;
     }
 
     // ---------- Login page enhancements ----------
@@ -2298,6 +2325,10 @@
     // (con dedupe). Calienta la caché HTTP del navegador cuando la página lo
     // permite; el beneficio sólido y persistente entre navegaciones es la caché
     // de data parseada (MS_CACHE en sessionStorage) que alimentan los getters.
+    // Links que NUNCA se deben prefetchear: un GET en hover a logout (o similar)
+    // mataría la sesión sin que el usuario clickee. Detectamos por URL y por texto.
+    const UNSAFE_PREFETCH = /log\s*-?\s*(?:out|off)|sign\s*-?\s*out|cerrar.?sesion|desconect|(?:^|[\s/_-])salir(?:[\s/_.-]|$)/i;
+
     function initPrefetch() {
         const prefetched = new Set();
         document.addEventListener('mouseover', (e) => {
@@ -2308,6 +2339,8 @@
             let url;
             try { url = new URL(href, location.href); } catch (err) { return; }
             if (url.origin !== location.origin || url.pathname === location.pathname) return;
+            // Nunca prefetchear acciones que muten la sesión (logout / salir).
+            if (UNSAFE_PREFETCH.test(url.pathname + ' ' + normalizeText(a.textContent || ''))) return;
             if (prefetched.has(url.href)) return;
             prefetched.add(url.href);
             fetchDoc(url.pathname + url.search);

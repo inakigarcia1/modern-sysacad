@@ -2446,3 +2446,57 @@ html.ms-dark .ms-detail-badge.ms-node-available { background: rgba(56,189,248,.1
     .ms-graph-toggle,
     .ms-graph-btn { transition: none; }
 }
+
+/* ---- Skeleton del grafo (mientras carga plan + estado) ---- */
+.ms-skel-stage {
+    display: flex;
+    gap: var(--ms-graph-col-gap, 36px);
+    padding: 22px;
+    overflow: hidden;
+    min-height: 320px;
+}
+.ms-skel-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+.ms-skel-year {
+    height: 12px;
+    width: 60%;
+    margin: 0 auto 8px;
+}
+.ms-skel-node {
+    height: 34px;
+    border-radius: 9px;
+}
+.ms-skel-line,
+.ms-skel-node {
+    background: linear-gradient(
+        100deg,
+        var(--ms-skel-base, rgba(15, 23, 42, .06)) 30%,
+        var(--ms-skel-shine, rgba(15, 23, 42, .12)) 50%,
+        var(--ms-skel-base, rgba(15, 23, 42, .06)) 70%
+    );
+    background-size: 200% 100%;
+    animation: ms-skel-shimmer 1.3s ease-in-out infinite;
+}
+.ms-skel-summary {
+    height: 12px;
+    width: 160px;
+    border-radius: 6px;
+}
+@keyframes ms-skel-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+html.ms-dark .ms-skel-line,
+html.ms-dark .ms-skel-node {
+    --ms-skel-base: rgba(226, 232, 240, .07);
+    --ms-skel-shine: rgba(226, 232, 240, .15);
+}
+@media (prefers-reduced-motion: reduce) {
+    .ms-skel-line,
+    .ms-skel-node { animation: none; }
+}
