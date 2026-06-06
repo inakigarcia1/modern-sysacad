@@ -1334,6 +1334,152 @@ html.ms-dark .panel.panel-default {
     padding: 32px 24px !important;
 }
 
+/* ---------- Páginas de confirmación / detalle ----------
+   Ej: "Inscripción a examen" → confirmación. SYSACAD-WEB las arma con
+   un panel contextual (panel-info), list-group, alert y botones default
+   de Bootstrap 3. Sin tema quedaban crudas: labels casi invisibles,
+   header celeste que desentona, botones y alert sin estilizar. Las
+   llevamos al lenguaje visual del resto de la extensión. */
+
+/* Sub-card "DATOS DE INSCRIPCIÓN" (cualquier contexto: info/success/…) */
+.page-generic .panel {
+    background-color: var(--ms-card-bg-elev) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius) !important;
+    box-shadow: none !important;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+html.ms-dark .page-generic .panel {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Barra de header del panel */
+.page-generic .panel-heading {
+    background: var(--ms-accent-soft) !important;
+    color: var(--ms-text) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    border-radius: 0 !important;
+    padding: 13px 18px !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.page-generic .panel-title {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    color: inherit !important;
+}
+
+/* Filas del detalle (Materia / Fecha / Inscripto / Codigo) */
+.page-generic .list-group {
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+.page-generic .list-group-item {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 13px 18px !important;
+    font-size: 14px;
+}
+.page-generic .list-group-item:last-child {
+    border-bottom: none !important;
+}
+/* Legibilidad: forzamos color del tema sobre labels y valores aunque
+   vengan con clases contextuales o color inline de Bootstrap. */
+.page-generic .list-group-item,
+.page-generic .list-group-item > *,
+.page-generic .list-group-item span,
+.page-generic .list-group-item label {
+    color: var(--ms-text) !important;
+}
+.page-generic .list-group-item strong,
+.page-generic .list-group-item b {
+    font-weight: 700;
+    color: var(--ms-text) !important;
+}
+
+/* Alert ("Si imprime los comprobantes…") */
+.page-generic .alert {
+    border-radius: var(--ms-radius) !important;
+    padding: 14px 16px !important;
+    margin: 0 0 20px !important;
+    text-align: center;
+}
+.page-generic .alert,
+.page-generic .alert *,
+.page-generic .alert-warning {
+    color: var(--ms-text) !important;
+}
+.page-generic .alert-warning {
+    background: var(--ms-warning-soft) !important;
+    border: 1px solid var(--ms-warning) !important;
+}
+.page-generic .alert-info {
+    background: var(--ms-accent-soft) !important;
+    border: 1px solid var(--ms-accent) !important;
+}
+.page-generic .alert-success {
+    background: var(--ms-success-soft) !important;
+    border: 1px solid var(--ms-success) !important;
+}
+.page-generic .alert-danger {
+    background: var(--ms-danger-soft) !important;
+    border: 1px solid var(--ms-danger) !important;
+}
+
+/* Botones de acción (Imprimir comprobantes / volver). Tomamos también los
+   que SYSACAD coloca fuera de la card (.btn dentro del contenedor de página),
+   y los <a>/<button> que el reset de login no alcanza. */
+.page-generic .btn-primary,
+.page-generic .btn-info,
+.page-generic a.btn-primary,
+.page-generic a.btn-info,
+.page-generic button.btn-primary,
+.container > .text-center .btn-primary,
+.container > .text-center .btn-info {
+    background: var(--ms-accent) !important;
+    background-image: none !important;
+    border: 1px solid var(--ms-accent) !important;
+    color: #fff !important;
+    border-radius: var(--ms-radius) !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    text-shadow: none !important;
+    box-shadow: var(--ms-shadow-sm);
+    transition: background .15s ease, transform .1s ease;
+}
+.page-generic .btn-primary:hover,
+.page-generic .btn-info:hover,
+.page-generic a.btn-primary:hover,
+.page-generic a.btn-info:hover,
+.container > .text-center .btn-primary:hover,
+.container > .text-center .btn-info:hover {
+    background: var(--ms-accent-hover) !important;
+    border-color: var(--ms-accent-hover) !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+.page-generic .btn-default,
+.container > .text-center .btn-default {
+    background: var(--ms-card-bg-elev) !important;
+    border: 1px solid var(--ms-border-strong) !important;
+    color: var(--ms-text) !important;
+    border-radius: var(--ms-radius) !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    text-shadow: none !important;
+}
+.page-generic .btn-default:hover,
+.container > .text-center .btn-default:hover {
+    background: var(--ms-accent-soft) !important;
+    border-color: var(--ms-accent) !important;
+}
+
 /* Header: logo + títulos */
 .head-cap {
     border-bottom: 1px solid var(--ms-border) !important;

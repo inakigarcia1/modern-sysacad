@@ -73,7 +73,9 @@
     // Dedupe de fetches concurrentes: si dos mejoras piden la misma página en
     // el mismo tick (o un prefetch ya está en vuelo), comparten la promesa en
     // vez de pegarle dos veces al servidor. Vive en memoria (se pierde al
-    // navegar, que es justo cuando ya no sirve).
+    // navegar, que es justo cuando ya no sirve). La entrada se borra cuando la
+    // promesa termina, así no crece sin límite y un fallo transitorio no queda
+    // cacheado: el próximo pedido reintenta.
     const _docPromises = new Map();
 
     /**
@@ -87,7 +89,8 @@
         const p = fetch(path, { credentials: 'same-origin' })
             .then(resp => resp.ok ? resp.text() : null)
             .then(html => html ? new DOMParser().parseFromString(html, 'text/html') : null)
-            .catch(() => null);
+            .catch(() => null)
+            .finally(() => { _docPromises.delete(path); });
         _docPromises.set(path, p);
         return p;
     }
@@ -106,9 +109,6 @@
         return node;
     }
 
-    // Busca en `root` (Document o elemento) la primera tabla cuyos headers
-    // incluyan todos los `required`. Sirve tanto para la página viva como para
-    // documentos fetcheados de otras páginas.
     // Crea un nodo SVG (namespace correcto). `text` va por textContent para
     // que nombres de materias con caracteres especiales nunca inyecten markup.
     function svgEl(tag, attrs = {}, text = null) {
@@ -118,6 +118,9 @@
         return node;
     }
 
+    // Busca en `root` (Document o elemento) la primera tabla cuyos headers
+    // incluyan todos los `required`. Sirve tanto para la página viva como para
+    // documentos fetcheados de otras páginas.
     function findTableIn(root, ...required) {
         for (const t of root.querySelectorAll('table')) {
             const headers = [...t.querySelectorAll('thead th')].map(h => h.textContent.trim().toLowerCase());
@@ -133,14 +136,25 @@
     }
 
     // Busca en el sidebar/nav un link cuyo texto incluya todas las keywords.
-    // Devuelve su href real para no hardcodear slugs (robusto entre regionales).
+    // Devuelve un path interno normalizado (pathname + search) para no hardcodear
+    // slugs (robusto entre regionales). Solo acepta URLs del mismo origen: el
+    // resultado alimenta a fetchDoc(), así que un link externo nunca dispara un
+    // request cross-origin. Normalizar la forma también mejora el dedupe entre
+    // hrefs relativos y absolutos.
     function findNavLink(...keywords) {
         const want = keywords.map(k => normalizeText(k));
         for (const a of document.querySelectorAll('a[href]')) {
             const t = normalizeText(a.textContent);
             if (!want.every(k => t.includes(k))) continue;
             const href = a.getAttribute('href');
-            if (href && !href.startsWith('#') && !/^javascript:/i.test(href)) return href;
+            if (!href || href.startsWith('#') || /^javascript:/i.test(href)) continue;
+            try {
+                const url = new URL(href, location.href);
+                if (url.origin !== location.origin) continue;
+                return url.pathname + url.search;
+            } catch (e) {
+                continue;
+            }
         }
         return null;
     }
@@ -1457,13 +1471,23 @@
         // Snapshot ANTES de agregar fantasmas en el loop de aristas, así el match
         // por truncado solo apunta a materias reales (plan/estado/correl).
         const realKeys = [...byKey.keys()];
+        // El match por truncado es O(n) sobre realKeys; los nombres se repiten
+        // mucho (cada materia aparece como destino y como prerrequisito de otras),
+        // así que memoizamos por nombre para no re-escanear. El resultado es
+        // estable: depende solo de los snapshots fijos realKeys/looseToReal.
+        const resolveCache = new Map();
         const resolveKey = (name) => {
+            if (resolveCache.has(name)) return resolveCache.get(name);
             const k = subjectKey(name);
-            if (byKey.has(k)) return k;
-            const lk = looseToReal.get(subjectLooseKey(name));
-            if (lk) return lk;
-            const hit = realKeys.find(rk => isTruncationOf(k, rk));
-            return hit || k;
+            let result;
+            if (byKey.has(k)) {
+                result = k;
+            } else {
+                const lk = looseToReal.get(subjectLooseKey(name));
+                result = lk || realKeys.find(rk => isTruncationOf(k, rk)) || k;
+            }
+            resolveCache.set(name, result);
+            return result;
         };
 
         const edges = [];
@@ -1651,7 +1675,9 @@
                 const g = svgEl('g', {
                     class: 'ms-graph-node ms-node-' + n.cls,
                     transform: `translate(${n.x},${n.y})`,
-                    role: 'button', tabindex: '0',
+                    // focusable además de tabindex: algunos navegadores no enfocan
+                    // un <g> solo con tabindex, y así el grafo sigue navegable por teclado.
+                    role: 'button', tabindex: '0', focusable: 'true',
                     'aria-label': `${n.name} — ${labelFor(n.status)}`
                 });
                 g.appendChild(svgEl('rect', { class: 'ms-node-rect', x: 0, y: 0, width: G.NODE_W, height: G.NODE_H, rx: 9 }));
