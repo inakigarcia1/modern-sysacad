@@ -6,7 +6,7 @@
   "content_scripts": [
     {
       "matches": [
-         "https://sysacad.frt.utn.edu.ar/*",
+        "https://sysacad.frt.utn.edu.ar/*",
         "https://servicios.fra.utn.edu.ar/*",
         "https://sysacadweb.frgp.utn.edu.ar/*",
         "https://alumnos.frro.utn.edu.ar/*",
@@ -59,14 +59,12 @@
         "icons/*"
       ],
       "matches": [
-         "https://sysacad.frt.utn.edu.ar/*",
+        "https://sysacad.frt.utn.edu.ar/*",
         "https://servicios.fra.utn.edu.ar/*",
         "https://sysacadweb.frgp.utn.edu.ar/*",
         "https://sysacadweb.frre.utn.edu.ar/*",
         "https://sysacad.frvt.utn.edu.ar/*",
-        "https://alumnos.frro.utn.edu.ar/*"
         "https://alumnos.frro.utn.edu.ar/*",
-        "https://sysacad.frvt.utn.edu.ar/*"
       ]
     }
   ],
