@@ -1,0 +1,134 @@
+/*
+ * frro.css — Estilos específicos de la Facultad Regional Rosario (FRRo).
+ *
+ * Se inyecta DESPUÉS de common/common.css (mismo bloque del manifest). Reutiliza
+ * todas las variables y estilos de common; acá solo viven los selectores
+ * acotados a la estructura propia de Rosario (#page-container), que el resto de
+ * regionales no tienen. NO se duplica nada de common.css.
+ *
+ * Variables CSS heredadas de common.css: --bg-color, --text-primary,
+ * --text-secondary, --primary-color, --card-bg, --border-color, --font-family,
+ * --container-max-width.
+ */
+
+/* =========================================================
+   FRRO (Rosario) — selectores acotados a #page-container
+   ========================================================= */
+
+/* Header propio de Rosario (ya dibujamos el nuestro) */
+#page-container > .header {
+  display: none !important;
+}
+
+/* Wrappers propios de Rosario: columna centrada como el body */
+#page-container,
+#page-container > .wrapper {
+  background: transparent !important;
+  background-image: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+#page-container pre {
+  display: none !important;
+}
+
+/* Aviso del pie (Rosario lo posiciona absolute) */
+#page-container > .footer.aviso {
+  position: static !important;
+  font-family: var(--font-family) !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  text-align: center !important;
+  font-size: 0.85rem !important;
+  margin: 32px auto 0 auto !important;
+  max-width: var(--container-max-width) !important;
+}
+
+#page-container > .footer.aviso font[color="red"] {
+  color: #ef4444 !important;
+}
+
+/* Fondos azules heredados de las tablas viejas */
+#page-container td[bgcolor="#0000FF"],
+#page-container td[bgcolor="#FFFFFF"],
+#page-container td[bgcolor="#3161bd"] {
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+/* Contenedor de las páginas de datos */
+#page-container table[width="700"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  max-width: var(--container-max-width) !important;
+  margin: 0 auto !important;
+}
+
+/* Título de página de datos (nombre + fecha) */
+#page-container table[width="700"] td.tituloTabla {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  border: none !important;
+  padding: 0 0 16px 0 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Tarjeta de login (Rosario usa width="260", la ensanchamos) */
+#page-container form[name="login"] {
+  width: 100% !important;
+  max-width: 420px !important;
+}
+
+/* Fondos azules del recuadro de login (Rosario usa width="260") */
+#page-container form[name="login"] td[bgcolor="#0000FF"],
+#page-container form[name="login"] td[bgcolor="#FFFFFF"] {
+  background-color: transparent !important;
+}
+
+#page-container table[width="260"] {
+  background-color: var(--card-bg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 20px 25px -5px rgba(0, 0, 0, 0.05) !important;
+  padding: 40px !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 420px !important;
+  margin: 20px auto 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+#page-container table[width="260"] > tbody,
+#page-container table[width="260"] > tbody > tr,
+#page-container table[width="260"] > tbody > tr > td {
+  display: block !important;
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+#page-container table[width="260"] table {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Cronograma y avisos del login (tablas width="800") centradas */
+#page-container table[width="800"] {
+  width: 100% !important;
+  max-width: 760px !important;
+  margin: 16px auto !important;
+  background: transparent !important;
+}

@@ -29,6 +29,28 @@
       "js": [
         "frre/frre.js"
       ]
+    },
+    {
+      "matches": [
+        "https://alumnos.frro.utn.edu.ar/*"
+      ],
+      "js": [
+        "frro/frro-capture.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://alumnos.frro.utn.edu.ar/*"
+      ],
+      "css": [
+        "common/common.css",
+        "frro/frro.css"
+      ],
+      "js": [
+        "common/common.js",
+        "frro/frro.js"
+      ]
     }
   ],
   "web_accessible_resources": [
@@ -41,8 +63,8 @@
         "https://servicios.fra.utn.edu.ar/*",
         "https://sysacadweb.frgp.utn.edu.ar/*",
         "https://sysacadweb.frre.utn.edu.ar/*",
-        "https://alumnos.frro.utn.edu.ar/*",
-        "https://sysacad.frvt.utn.edu.ar/*"
+        "https://sysacad.frvt.utn.edu.ar/*",
+        "https://alumnos.frro.utn.edu.ar/*"
       ]
     }
   ]

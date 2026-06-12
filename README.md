@@ -31,7 +31,7 @@ Disponible para carga local en Microsoft Edge usando `manifest.edge.json`.
 * **FRRe** (Resistencia) — `sysacadweb.frre.utn.edu.ar` *(adaptación por Tomás Kobluk, Gonzalo Fidanza, Lorenzo Arduino y Joaquín Brocal)*
 * **FRA** (Avellaneda) - `servicios.fra.utn.edu.ar` *(adaptación por Ignacio Natanael Núñez y Facundo Falcone)*
 * **FRGP** (General Pacheco) - `sysacadweb.frgp.utn.edu.ar` *(adaptación por Facundo Falcone)*
-* **FRRo** (Rosario) - `www.frro.utn.edu.ar/sysacad/`
+* **FRRo** (Rosario) - `alumnos.frro.utn.edu.ar` *(adaptación por Martín Ratti y Agustín Santinelli)*
 * **FRVT** (Venado Tuerto) — `sysacad.frvt.utn.edu.ar`
 
 Cada regional puede usar los archivos comunes (`/common`) y/o propios (`/miRegional`), y el manifest los inyecta sólo en el dominio correspondiente.
