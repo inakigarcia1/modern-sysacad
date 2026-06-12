@@ -1334,6 +1334,152 @@ html.ms-dark .panel.panel-default {
     padding: 32px 24px !important;
 }
 
+/* ---------- Páginas de confirmación / detalle ----------
+   Ej: "Inscripción a examen" → confirmación. SYSACAD-WEB las arma con
+   un panel contextual (panel-info), list-group, alert y botones default
+   de Bootstrap 3. Sin tema quedaban crudas: labels casi invisibles,
+   header celeste que desentona, botones y alert sin estilizar. Las
+   llevamos al lenguaje visual del resto de la extensión. */
+
+/* Sub-card "DATOS DE INSCRIPCIÓN" (cualquier contexto: info/success/…) */
+.page-generic .panel {
+    background-color: var(--ms-card-bg-elev) !important;
+    border: 1px solid var(--ms-border) !important;
+    border-radius: var(--ms-radius) !important;
+    box-shadow: none !important;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+html.ms-dark .page-generic .panel {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Barra de header del panel */
+.page-generic .panel-heading {
+    background: var(--ms-accent-soft) !important;
+    color: var(--ms-text) !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    border-radius: 0 !important;
+    padding: 13px 18px !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.page-generic .panel-title {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    color: inherit !important;
+}
+
+/* Filas del detalle (Materia / Fecha / Inscripto / Codigo) */
+.page-generic .list-group {
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+.page-generic .list-group-item {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid var(--ms-border) !important;
+    padding: 13px 18px !important;
+    font-size: 14px;
+}
+.page-generic .list-group-item:last-child {
+    border-bottom: none !important;
+}
+/* Legibilidad: forzamos color del tema sobre labels y valores aunque
+   vengan con clases contextuales o color inline de Bootstrap. */
+.page-generic .list-group-item,
+.page-generic .list-group-item > *,
+.page-generic .list-group-item span,
+.page-generic .list-group-item label {
+    color: var(--ms-text) !important;
+}
+.page-generic .list-group-item strong,
+.page-generic .list-group-item b {
+    font-weight: 700;
+    color: var(--ms-text) !important;
+}
+
+/* Alert ("Si imprime los comprobantes…") */
+.page-generic .alert {
+    border-radius: var(--ms-radius) !important;
+    padding: 14px 16px !important;
+    margin: 0 0 20px !important;
+    text-align: center;
+}
+.page-generic .alert,
+.page-generic .alert *,
+.page-generic .alert-warning {
+    color: var(--ms-text) !important;
+}
+.page-generic .alert-warning {
+    background: var(--ms-warning-soft) !important;
+    border: 1px solid var(--ms-warning) !important;
+}
+.page-generic .alert-info {
+    background: var(--ms-accent-soft) !important;
+    border: 1px solid var(--ms-accent) !important;
+}
+.page-generic .alert-success {
+    background: var(--ms-success-soft) !important;
+    border: 1px solid var(--ms-success) !important;
+}
+.page-generic .alert-danger {
+    background: var(--ms-danger-soft) !important;
+    border: 1px solid var(--ms-danger) !important;
+}
+
+/* Botones de acción (Imprimir comprobantes / volver). Tomamos también los
+   que SYSACAD coloca fuera de la card (.btn dentro del contenedor de página),
+   y los <a>/<button> que el reset de login no alcanza. */
+.page-generic .btn-primary,
+.page-generic .btn-info,
+.page-generic a.btn-primary,
+.page-generic a.btn-info,
+.page-generic button.btn-primary,
+.container > .text-center .btn-primary,
+.container > .text-center .btn-info {
+    background: var(--ms-accent) !important;
+    background-image: none !important;
+    border: 1px solid var(--ms-accent) !important;
+    color: #fff !important;
+    border-radius: var(--ms-radius) !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    text-shadow: none !important;
+    box-shadow: var(--ms-shadow-sm);
+    transition: background .15s ease, transform .1s ease;
+}
+.page-generic .btn-primary:hover,
+.page-generic .btn-info:hover,
+.page-generic a.btn-primary:hover,
+.page-generic a.btn-info:hover,
+.container > .text-center .btn-primary:hover,
+.container > .text-center .btn-info:hover {
+    background: var(--ms-accent-hover) !important;
+    border-color: var(--ms-accent-hover) !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+.page-generic .btn-default,
+.container > .text-center .btn-default {
+    background: var(--ms-card-bg-elev) !important;
+    border: 1px solid var(--ms-border-strong) !important;
+    color: var(--ms-text) !important;
+    border-radius: var(--ms-radius) !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    text-shadow: none !important;
+}
+.page-generic .btn-default:hover,
+.container > .text-center .btn-default:hover {
+    background: var(--ms-accent-soft) !important;
+    border-color: var(--ms-accent) !important;
+}
+
 /* Header: logo + títulos */
 .head-cap {
     border-bottom: 1px solid var(--ms-border) !important;
@@ -2102,4 +2248,401 @@ html.ms-dark body.ms-page-encuesta .ms-select-panel {
 
 html.ms-dark body.ms-page-encuesta .ms-select.is-open .ms-select-trigger {
     box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18), var(--ms-shadow-sm);
+}
+
+/* ============================================================
+   Correlatividades — grafo interactivo
+   ============================================================ */
+
+.ms-graph-card {
+    background: var(--ms-card-bg);
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius-lg);
+    box-shadow: var(--ms-shadow);
+    padding: 18px 18px 14px;
+    margin-bottom: 22px;
+}
+
+.ms-graph-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.ms-graph-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ms-text);
+}
+.ms-graph-title svg { color: var(--ms-accent); }
+
+.ms-graph-summary {
+    font-size: 13px;
+    color: var(--ms-text-secondary);
+}
+
+/* ---- Toolbar ---- */
+.ms-graph-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.ms-graph-search {
+    position: relative;
+    flex: 1 1 220px;
+    min-width: 180px;
+}
+.ms-graph-search .ms-search-input { padding-top: 8px; padding-bottom: 8px; }
+
+.ms-graph-toggle {
+    border: 1px solid var(--ms-border-strong);
+    background: var(--ms-card-bg-elev);
+    color: var(--ms-text-secondary);
+    border-radius: 999px;
+    padding: 7px 15px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+    white-space: nowrap;
+}
+.ms-graph-toggle:hover { border-color: var(--ms-accent); color: var(--ms-text); }
+.ms-graph-toggle.is-active {
+    background: var(--ms-accent);
+    border-color: var(--ms-accent);
+    color: #fff;
+}
+
+.ms-graph-zoom {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: auto;
+}
+.ms-graph-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ms-border-strong);
+    background: var(--ms-card-bg-elev);
+    color: var(--ms-text-secondary);
+    border-radius: var(--ms-radius-sm);
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.ms-graph-btn:hover { border-color: var(--ms-accent); color: var(--ms-accent); }
+
+/* ---- Stage ---- */
+.ms-graph-stage {
+    position: relative;
+    height: min(68vh, 600px);
+    min-height: 340px;
+    border: 1px solid var(--ms-border);
+    border-radius: var(--ms-radius);
+    background:
+        radial-gradient(circle at 1px 1px, var(--ms-border) 1px, transparent 0) 0 0 / 22px 22px,
+        var(--ms-card-bg-elev);
+    overflow: hidden;
+}
+
+.ms-graph-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+}
+.ms-graph-svg.is-grabbing { cursor: grabbing; }
+
+.ms-graph-year {
+    fill: var(--ms-text-muted);
+    font-family: var(--ms-font);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+/* ---- Aristas ---- */
+.ms-graph-edge {
+    fill: none;
+    stroke: var(--ms-border-strong);
+    stroke-width: 1.5;
+    opacity: .7;
+    transition: opacity .18s ease, stroke .18s ease, stroke-width .18s ease;
+}
+.ms-graph-edge.ms-edge-aprobar { stroke-dasharray: 4 4; }
+.ms-graph-edge.is-active {
+    stroke: var(--ms-accent);
+    stroke-width: 2.4;
+    opacity: 1;
+}
+.ms-graph-edge.is-dim { opacity: .1; }
+
+/* ---- Nodos ---- */
+.ms-graph-node {
+    cursor: pointer;
+    transition: opacity .18s ease;
+}
+.ms-graph-node:focus { outline: none; }
+.ms-graph-node:focus .ms-node-rect {
+    stroke: var(--ms-accent);
+    stroke-width: 2;
+}
+.ms-node-rect {
+    fill: var(--ms-card-bg);
+    stroke: var(--ms-border-strong);
+    stroke-width: 1.4;
+    transition: stroke .18s ease, stroke-width .18s ease, fill .18s ease;
+}
+.ms-node-label {
+    fill: var(--ms-text);
+    font-family: var(--ms-font);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+.ms-node-dot { stroke: none; }
+
+/* Colores por estado */
+.ms-node-done    .ms-node-rect { fill: var(--ms-success-soft); stroke: var(--ms-success); }
+.ms-node-done    .ms-node-dot  { fill: var(--ms-success); }
+.ms-node-cursando .ms-node-rect { fill: var(--ms-accent-soft); stroke: var(--ms-accent); }
+.ms-node-cursando .ms-node-dot  { fill: var(--ms-accent); }
+.ms-node-available .ms-node-rect { fill: rgba(14, 165, 233, .12); stroke: #0ea5e9; }
+.ms-node-available .ms-node-dot  { fill: #0ea5e9; }
+.ms-node-blocked .ms-node-rect { fill: var(--ms-danger-soft); stroke: var(--ms-danger); }
+.ms-node-blocked .ms-node-dot  { fill: var(--ms-danger); }
+.ms-node-pending .ms-node-rect { fill: var(--ms-card-bg-elev); stroke: var(--ms-border-strong); stroke-dasharray: 3 3; }
+.ms-node-pending .ms-node-dot  { fill: var(--ms-text-muted); }
+
+/* Estados de interacción */
+.ms-graph-node.is-active .ms-node-rect { stroke-width: 2.6; }
+.ms-graph-node.is-active .ms-node-label { font-weight: 700; }
+.ms-graph-node.is-dim { opacity: .22; }
+.ms-graph-node.is-search-miss { opacity: .25; }
+.ms-graph-node.is-search-hit .ms-node-rect {
+    stroke: var(--ms-warning);
+    stroke-width: 2.6;
+}
+
+/* ---- Panel de detalle ---- */
+.ms-graph-detail {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 264px;
+    max-width: calc(100% - 24px);
+    max-height: calc(100% - 24px);
+    overflow-y: auto;
+    background: var(--ms-card-bg);
+    border: 1px solid var(--ms-border-strong);
+    border-radius: var(--ms-radius);
+    box-shadow: var(--ms-shadow-lg);
+    padding: 14px 16px 16px;
+    opacity: 0;
+    transform: translateX(8px);
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+}
+.ms-graph-detail.is-open {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+}
+.ms-detail-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: none;
+    background: transparent;
+    color: var(--ms-text-muted);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: var(--ms-radius-sm);
+}
+.ms-detail-close:hover { color: var(--ms-text); background: var(--ms-card-bg-elev); }
+.ms-detail-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ms-text);
+    padding-right: 20px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+.ms-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.ms-detail-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+.ms-detail-badge.ms-node-done    { background: var(--ms-success-soft); color: var(--ms-success); }
+.ms-detail-badge.ms-node-cursando { background: var(--ms-accent-soft); color: var(--ms-accent); }
+.ms-detail-badge.ms-node-available { background: rgba(14,165,233,.14); color: #0284c7; }
+.ms-detail-badge.ms-node-blocked { background: var(--ms-danger-soft); color: var(--ms-danger); }
+.ms-detail-badge.ms-node-pending { background: var(--ms-card-bg-elev); color: var(--ms-text-secondary); }
+.ms-detail-year {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--ms-card-bg-elev);
+    color: var(--ms-text-secondary);
+}
+.ms-detail-section { margin-top: 12px; }
+.ms-detail-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--ms-text-muted);
+    margin-bottom: 6px;
+}
+.ms-detail-list { list-style: none; margin: 0; padding: 0; }
+.ms-detail-list li { margin: 0 0 3px; }
+.ms-detail-link {
+    border: none;
+    background: transparent;
+    color: var(--ms-accent);
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    padding: 3px 0;
+    cursor: pointer;
+    line-height: 1.35;
+}
+.ms-detail-link:hover { text-decoration: underline; }
+.ms-detail-empty {
+    font-size: 12.5px;
+    color: var(--ms-text-muted);
+    line-height: 1.4;
+}
+
+/* ---- Hint ---- */
+.ms-graph-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--ms-text-muted);
+    text-align: center;
+}
+
+/* ---- Badges en la tabla original de correlatividades ---- */
+.ms-corr-cell .ms-corr-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    margin-bottom: 4px;
+}
+.ms-corr-badge.is-ok { background: var(--ms-success-soft); color: var(--ms-success); }
+.ms-corr-badge.is-blocked { background: var(--ms-danger-soft); color: var(--ms-danger); margin-right: 6px; }
+
+/* Dark mode: el patrón de puntos del stage usa un borde más sutil */
+html.ms-dark .ms-graph-stage {
+    background:
+        radial-gradient(circle at 1px 1px, rgba(255,255,255,.05) 1px, transparent 0) 0 0 / 22px 22px,
+        var(--ms-card-bg-elev);
+}
+html.ms-dark .ms-node-available .ms-node-rect { fill: rgba(56,189,248,.14); stroke: #38bdf8; }
+html.ms-dark .ms-node-available .ms-node-dot  { fill: #38bdf8; }
+html.ms-dark .ms-detail-badge.ms-node-available { background: rgba(56,189,248,.16); color: #7dd3fc; }
+
+/* Responsive: en pantallas chicas el panel de detalle es una hoja inferior */
+@media (max-width: 640px) {
+    .ms-graph-detail {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        max-height: 55%;
+        border-radius: var(--ms-radius) var(--ms-radius) 0 0;
+        transform: translateY(12px);
+    }
+    .ms-graph-detail.is-open { transform: none; }
+    .ms-graph-zoom { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ms-graph-edge,
+    .ms-graph-node,
+    .ms-node-rect,
+    .ms-graph-detail,
+    .ms-graph-toggle,
+    .ms-graph-btn { transition: none; }
+}
+
+/* ---- Skeleton del grafo (mientras carga plan + estado) ---- */
+.ms-skel-stage {
+    display: flex;
+    gap: var(--ms-graph-col-gap, 36px);
+    padding: 22px;
+    overflow: hidden;
+    min-height: 320px;
+}
+.ms-skel-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+.ms-skel-year {
+    height: 12px;
+    width: 60%;
+    margin: 0 auto 8px;
+}
+.ms-skel-node {
+    height: 34px;
+    border-radius: 9px;
+}
+.ms-skel-line,
+.ms-skel-node {
+    background: linear-gradient(
+        100deg,
+        var(--ms-skel-base, rgba(15, 23, 42, .06)) 30%,
+        var(--ms-skel-shine, rgba(15, 23, 42, .12)) 50%,
+        var(--ms-skel-base, rgba(15, 23, 42, .06)) 70%
+    );
+    background-size: 200% 100%;
+    animation: ms-skel-shimmer 1.3s ease-in-out infinite;
+}
+.ms-skel-summary {
+    height: 12px;
+    width: 160px;
+    border-radius: 6px;
+}
+@keyframes ms-skel-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+html.ms-dark .ms-skel-line,
+html.ms-dark .ms-skel-node {
+    --ms-skel-base: rgba(226, 232, 240, .07);
+    --ms-skel-shine: rgba(226, 232, 240, .15);
+}
+@media (prefers-reduced-motion: reduce) {
+    .ms-skel-line,
+    .ms-skel-node { animation: none; }
 }
