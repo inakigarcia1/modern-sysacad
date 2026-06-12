@@ -96,3 +96,6 @@ Este proyecto es 100% gratuito y de código abierto. Si te ahorró un dolor de c
 
 ## 📄 Licencia
 Este proyecto está bajo la Licencia MIT. Podés ver el archivo `LICENSE` para más detalles.
+
+<hr>
+<p align="center">Desarrollado con ❤️ y mucho 🧉 para la comunidad académica.</p>
