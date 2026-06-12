@@ -439,20 +439,179 @@ if (tituloTabla && tituloTabla.textContent.toLowerCase().includes('exámenes')) 
 if (window.location.href.toLowerCase().includes('notasparciales.asp')) {
     const dataTable = document.querySelector('table[border="1"]');
     if (dataTable) {
+        const classes = [];
         const rows = dataTable.querySelectorAll('tr.textoTabla');
         rows.forEach(row => {
             const tds = row.querySelectorAll('td');
-            if (tds.length >= 2) {
+            if (tds.length >= 5) {
                 const materiaTd = tds[1];
                 const link = materiaTd.querySelector('a');
+                let materiaNombre = materiaTd.textContent.trim();
                 if (link) {
-                    const materiaNombre = link.textContent.trim();
+                    materiaNombre = link.textContent.trim();
                     materiaTd.innerHTML = materiaNombre;
                     materiaTd.style.fontWeight = '600';
                     materiaTd.style.color = 'var(--text-primary)';
                 }
+                
+                const horarioText = tds[4].textContent.trim();
+                if (horarioText && horarioText !== '-.-' && horarioText !== '&nbsp;') {
+                    const parts = horarioText.split(',');
+                    parts.forEach(part => {
+                        const match = part.trim().match(/([a-zA-ZáéíóúÁÉÍÓÚ]+)\s+(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+                        if (match) {
+                            classes.push({
+                                materia: materiaNombre,
+                                dia: match[1].toLowerCase(),
+                                inicio: match[2],
+                                fin: match[3]
+                            });
+                        }
+                    });
+                }
             }
         });
+
+        if (classes.length > 0) {
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+            const materiaColorMap = {};
+            let colorIndex = 0;
+
+            const days = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+            const dayMap = { 'lunes': 0, 'martes': 1, 'miércoles': 2, 'miercoles': 2, 'jueves': 3, 'viernes': 4, 'sábado': 5, 'sabado': 5 };
+            
+            let minHour = 24;
+            let maxHour = 0;
+
+            classes.forEach(c => {
+                const startH = parseInt(c.inicio.split(':')[0]);
+                const endH = parseInt(c.fin.split(':')[0]) + (parseInt(c.fin.split(':')[1]) > 0 ? 1 : 0);
+                if (startH < minHour) minHour = startH;
+                if (endH > maxHour) maxHour = endH;
+                
+                if (!materiaColorMap[c.materia]) {
+                    materiaColorMap[c.materia] = colors[colorIndex % colors.length];
+                    colorIndex++;
+                }
+            });
+
+            const totalHours = maxHour - minHour;
+            const hourHeight = 60;
+
+            const container = document.createElement('details');
+            container.className = 'calendar-details';
+            
+            let gridHtml = `
+                <summary class="calendar-summary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Ver Horario Semanal
+                </summary>
+                <div class="calendar-wrapper">
+                    <div class="calendar-header-actions" style="display: grid !important; grid-template-columns: 1fr auto 1fr !important; align-items: center; gap: 12px;">
+                        <div></div>
+                        <button id="export-ics-btn" class="btn-modern btn-primary btn-sm" style="margin: 0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Descargar ICS
+                        </button>
+                        <span style="font-style: italic; color: var(--text-secondary); font-size: 0.85rem; text-align: left;">¡Podés importar este archivo en Google Calendar u otros proveedores!</span>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-time-col">
+                            <div style="height: 45px; border-bottom: 1px solid var(--border-color);"></div>
+                            <div class="calendar-time-body" style="position: relative; height: ${totalHours * hourHeight}px; background-image: linear-gradient(to bottom, var(--border-color) 1px, transparent 1px); background-size: 100% ${hourHeight}px;">
+            `;
+
+            for (let i = minHour; i < maxHour; i++) {
+                gridHtml += `<div class="calendar-time-label" style="top: ${(i - minHour) * hourHeight + (hourHeight / 2)}px;">${i}:00</div>`;
+            }
+
+            gridHtml += `
+                            </div>
+                        </div>
+            `;
+
+            const icsDayMap = { 'lunes': 'MO', 'martes': 'TU', 'miércoles': 'WE', 'miercoles': 'WE', 'jueves': 'TH', 'viernes': 'FR', 'sábado': 'SA', 'sabado': 'SA' };
+
+            days.forEach((dayName, dIdx) => {
+                gridHtml += `
+                    <div class="calendar-day-col">
+                        <div class="calendar-day-header">${dayName.charAt(0).toUpperCase() + dayName.slice(1)}</div>
+                        <div class="calendar-day-body" style="height: ${totalHours * hourHeight}px; background-image: linear-gradient(to bottom, var(--border-color) 1px, transparent 1px); background-size: 100% ${hourHeight}px;">
+                `;
+
+                classes.filter(c => dayMap[c.dia] === dIdx).forEach(c => {
+                    const startParts = c.inicio.split(':');
+                    const endParts = c.fin.split(':');
+                    
+                    const startOffset = (parseInt(startParts[0]) - minHour) + (parseInt(startParts[1]) / 60);
+                    const endOffset = (parseInt(endParts[0]) - minHour) + (parseInt(endParts[1]) / 60);
+                    
+                    const top = (startOffset * hourHeight) + 2;
+                    const height = ((endOffset - startOffset) * hourHeight) - 4; // Restamos 4px para generar un gap
+                    
+                    gridHtml += `
+                        <div class="calendar-event" style="top: ${top}px; height: ${height}px; background-color: ${materiaColorMap[c.materia]};">
+                            <div class="calendar-event-title" title="${c.materia}">${c.materia}</div>
+                            <div class="calendar-event-time">${c.inicio} - ${c.fin}</div>
+                        </div>
+                    `;
+                });
+
+                gridHtml += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            gridHtml += `
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = gridHtml;
+            dataTable.parentNode.insertBefore(container, dataTable);
+
+            document.getElementById('export-ics-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//ModernSysacad//Horarios//ES\n";
+                
+                const now = new Date();
+                const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay();
+                
+                classes.forEach((c, idx) => {
+                    const targetDayNum = dayMap[c.dia] + 1;
+                    const diff = targetDayNum >= dayOfWeek ? targetDayNum - dayOfWeek : 7 - (dayOfWeek - targetDayNum);
+                    const eventDate = new Date(now);
+                    eventDate.setDate(now.getDate() + diff);
+                    
+                    const yyyy = eventDate.getFullYear();
+                    const mm = String(eventDate.getMonth() + 1).padStart(2, '0');
+                    const dd = String(eventDate.getDate()).padStart(2, '0');
+                    
+                    const startStr = yyyy + mm + dd + 'T' + c.inicio.replace(':', '') + '00';
+                    const endStr = yyyy + mm + dd + 'T' + c.fin.replace(':', '') + '00';
+                    
+                    ics += "BEGIN:VEVENT\n";
+                    ics += `UID:sysacad-${idx}@modern\n`;
+                    ics += `DTSTAMP:${yyyy}${mm}${dd}T000000Z\n`;
+                    ics += `DTSTART;TZID=America/Argentina/Buenos_Aires:${startStr}\n`;
+                    ics += `DTEND;TZID=America/Argentina/Buenos_Aires:${endStr}\n`;
+                    ics += `RRULE:FREQ=WEEKLY;BYDAY=${icsDayMap[c.dia]}\n`;
+                    ics += `SUMMARY:${c.materia}\n`;
+                    ics += "END:VEVENT\n";
+                });
+                
+                ics += "END:VCALENDAR";
+                
+                const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'horarios_sysacad.ics';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
     }
 }
 
