@@ -14,7 +14,7 @@ Un Sysacad moderno, limpio y con modo oscuro.
 ## ¡Ya disponible en Chrome, Edge y Firefox!
 
 ### 🌐 Chrome Web Store
-https://chromewebstore.google.com/detail/mabcfjnfkmedahekjndbbbnmmlodeccm?utm_source=item-share-cb
+https://chromewebstore.google.com/detail/mabcfjnfkmedahekjndbbbnmmlodeccm
 
 ### 🦊 Firefox Add-ons
 https://addons.mozilla.org/es-AR/firefox/addon/modernsysacad/
