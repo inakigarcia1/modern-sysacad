@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ModernSysacad",
-  "version": "1.4",
+  "version": "1.5",
   "description": "Moderniza la interfaz del SYSACAD de las distintas Facultades Regionales de UTN.",
   "content_scripts": [
     {
