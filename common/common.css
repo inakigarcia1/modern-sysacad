@@ -150,24 +150,32 @@ form[name="login"] {
 
 form[name="login"] table {
   max-width: 100% !important;
-  box-shadow: none !important;
-  padding: 0 !important;
   border: none !important;
+  padding: 0 !important;
   margin: 0 !important;
+  background: white;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, .08),
+    0 8px 24px rgba(0, 0, 0, .06);
 }
 
-form[name="login"] td {
-  text-align: left !important;
-  margin-bottom: 8px !important;
+form[name="login"] table th {
+  padding: 10px 0 !important;
 }
 
 form[name="login"] td[align="right"] {
   font-size: 0.875rem !important;
   font-weight: 600 !important;
   color: var(--text-secondary) !important;
-  margin-bottom: 8px !important;
+  margin-bottom: 0px !important;
   padding-top: 12px !important;
   text-align: left !important;
+  padding: 0 10px !important;
+}
+
+form[name="login"] tr td:last-child {
+  padding: 10px !important;
 }
 
 /* =========================================================
@@ -887,7 +895,7 @@ p.textoError,
   line-height: 1.2 !important;
   overflow: hidden !important;
   color: white !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
   transition: transform 0.2s, box-shadow 0.2s !important;
   z-index: 1 !important;
   display: flex !important;
@@ -898,7 +906,7 @@ p.textoError,
 
 .calendar-event:hover {
   transform: scale(1.02) !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
   z-index: 3 !important;
 }
 
